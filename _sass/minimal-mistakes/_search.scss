@@ -11,17 +11,16 @@
 .search__toggle {
   margin-left: 1rem;
   margin-right: 1rem;
-  height: $nav-toggle-height;
   border: 0;
   outline: none;
-  color: $primary-color;
+  color: $muted-text-color;
   background-color: transparent;
   cursor: pointer;
   -webkit-transition: 0.2s;
   transition: 0.2s;
 
   &:hover {
-    color: mix(#000, $primary-color, 25%);
+    color: $text-color;
   }
 }
 
@@ -48,13 +47,8 @@
     animation-delay: 0.15s;
 
     @include breakpoint($x-large) {
-      max-width: $max-width;
+      max-width: $x-large;
     }
-
-  }
-
-  &__form {
-    background-color: transparent;
   }
 
   .search-input {
@@ -110,23 +104,4 @@
   .archive__item-excerpt {
     margin-bottom: 0;
   }
-}
-
-/* Algolia search */
-
-.ais-search-box {
-  max-width: 100% !important;
-  margin-bottom: 2em;
-}
-
-.archive__item-title .ais-Highlight {
-  color: $primary-color;
-  font-style: normal;
-  text-decoration: underline;
-}
-
-.archive__item-excerpt .ais-Highlight {
-  color: $primary-color;
-  font-style: normal;
-  font-weight: bold;
 }
