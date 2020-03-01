@@ -1,6 +1,6 @@
 ---
 layout: posts
-permalink: /data-wrangling/
+permalink: /others/
 title: "Others"
 author_profile: true
 header:
