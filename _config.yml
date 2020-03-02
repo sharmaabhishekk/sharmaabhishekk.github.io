@@ -88,7 +88,7 @@ author:
   avatar           : "/images/bio-pic-2.jpg" # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
   bio              : "Football Analytics"
   location         : "Kolkata, India"
-  email            : "alpha.abhi5@gmail.com"
+  email            :
   uri              :
   home             : # null (default), "absolute or relative url to link to author home"
   bitbucket        :
@@ -97,19 +97,19 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           : "abhisheksh98"
+  github           : "Your Github"
   gitlab           :
   google_plus      :
   keybase          :
   instagram        :
   lastfm           :
-  linkedin         : # "dataoptimal" # "john-doe-12345678" (the last part of your profile url, e.g. https://www.linkedin.com/in/john-doe-12345678)
+  linkedin         : "dataoptimal" # "john-doe-12345678" (the last part of your profile url, e.g. https://www.linkedin.com/in/john-doe-12345678)
   pinterest        :
   soundcloud       :
-  stackoverflow    : "10949324/abhishek" # "123456/username" (the last part of your profile url, e.g. https://stackoverflow.com/users/123456/username)
+  stackoverflow    : # "123456/username" (the last part of your profile url, e.g. https://stackoverflow.com/users/123456/username)
   steam            : # "steamId" (the last part of your profile url, e.g. https://steamcommunity.com/id/steamId/)
   tumblr           :
-  twitter          : "AbhishekS9_"
+  twitter          :
   vine             :
   weibo            :
   xing             :

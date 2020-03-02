@@ -1,6 +1,6 @@
 ---
 layout: posts
-permalink: /data-wrangling/
+permalink: /analytics/
 title: "Football Analytics"
 author_profile: true
 header:
