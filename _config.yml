@@ -1,11 +1,11 @@
 ### Site Settings ###
-title               : portfolYOU
+title               : Abhishek Sharma
 description         : >-
-                      "I turn coffee :coffee: into code,
-                      use tabs over spaces
-                      and never broke production."
-baseurl             : "/portfolYOU"                     # Change to empty quotes if you are hosting your site at <your-username>.github.io directly
-repository          : YoussefRaafatNasry/portfolYOU     # Change to <your-username>/<your-username>.github.io (or remove it if you don't need remote projects)
+                      "Football :soccer: fanalytics,
+                      using machine learning and
+                      deep learning"
+baseurl             : ""                     # Change to empty quotes if you are hosting your site at <your-username>.github.io directly
+repository          : sharmaabhishekk/sharmaabhishekk.github.io    # Change to <your-username>/<your-username>.github.io (or remove it if you don't need remote projects)
 remote_theme        : YoussefRaafatNasry/portfolYOU
 
 
@@ -24,23 +24,23 @@ nav_exclude:                                            # The following paths ar
 
 ### Author Info ###
 author:
-  name              : John Doe
+  name              : Abhishek Sharma
   image             : https://bit.ly/2KCvgVJ
   behance           : your_username
 # dribbble          : your_username
-  email             : username@domain.com
-  facebook          : your_username
-  github            : your_username
+  email             : alpha.abhi5@gmail.com
+# facebook          : your_username
+# github            : sharmaabhishekk
 # gitlab            : your_username
 # instagram         : your_username
-  linkedin          : your_username
-  medium            : your_username
+# linkedin          : your_username
+# medium            : your_username
 # soundcloud        : your_username
 # spotify           : your_username
 # stackoverflow     : your_user_id
 # tumblr            : your_username.tumblr.com
 # twitch            : your_username
-  twitter           : your_username
+  twitter           : AbhishekS9_
 # vimeo             : your_username
 # youtube           : your_channel_name
 
