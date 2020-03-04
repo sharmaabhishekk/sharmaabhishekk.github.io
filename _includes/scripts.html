@@ -1,35 +1,22 @@
-{% if site.footer_scripts %}
-  {% for script in site.footer_scripts %}
-    {% if script contains "://" %}
-      {% capture script_path %}{{ script }}{% endcapture %}
-    {% else %}
-      {% capture script_path %}{{ script | absolute_url }}{% endcapture %}
-    {% endif %}
-    <script src="{{ script_path }}"></script>
-  {% endfor %}
-{% else %}
-  <script src="{{ '/assets/js/main.min.js' | absolute_url }}"></script>
-  <script src="https://use.fontawesome.com/releases/v5.0.2/js/all.js"></script>
-{% endif %}
+<!-- GitHub Buttons -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
 
-{% if site.search == true or page.layout == "search" %}
-  {% assign lang = site.locale | slice: 0,2 | default: "en" %}
-  {% case lang %}
-  {% when "gr" %}
-    {% assign lang = "gr" %}
-  {% else %}
-    {% assign lang = "en" %}
-  {% endcase %}
-  <script src="{{ '/assets/js/lunr/lunr.min.js' | absolute_url }}"></script>
-  <script src="{{ '/assets/js/lunr/lunr-store.js' | absolute_url }}"></script>
-  <script src="{{ '/assets/js/lunr/lunr-' | append: lang | append: '.js' | absolute_url }}"></script>
-{% endif %}
+<!-- jQuery CDN -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-{% include analytics.html %}
-{% include /comments-providers/scripts.html %}
+<!-- Popper.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
 
-{% if page.mathjax %}
-<script type="text/javascript" async
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+<!-- Bootstrap JS CDN -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<!-- wow.js CDN & Activation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.js"></script>
+<script> new WOW().init(); </script>
+
+<!-- Initialize all tooltips -->
+<script>
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+})
 </script>
-{% endif %}
