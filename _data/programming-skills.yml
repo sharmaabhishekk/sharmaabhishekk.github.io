@@ -1,9 +1,13 @@
 - name: Python
   percentage: 90
-  color: dark
+  color: green
 
 - name: R
-  percentage: 50
+  percentage: 70
   color: danger
+
+- name: C++
+  percentage: 55
+  color: blue
 
 

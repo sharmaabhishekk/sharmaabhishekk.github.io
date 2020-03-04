@@ -1,9 +1,10 @@
 ### Site Settings ###
 title               : Abhishek Sharma
 description         : >-
-                      "Football :soccer: fanalytics,
-                      using machine learning and
-                      deep learning"
+                      "Bit of football :soccer: fanlytics (bit of other stuff)"
+
+
+
 baseurl             : ""                     # Change to empty quotes if you are hosting your site at <your-username>.github.io directly
 repository          : sharmaabhishekk/sharmaabhishekk.github.io    # Change to <your-username>/<your-username>.github.io (or remove it if you don't need remote projects)
 remote_theme        : YoussefRaafatNasry/portfolYOU
@@ -54,8 +55,7 @@ collections:
   projects:
     output: true
     permalink: /projects/:name
-  elements:                                             # For Documentation Only
-    output: true                                        # For Documentation Only
+
 
 
 ### Defaults for collections ###
@@ -65,11 +65,6 @@ defaults:
       type: "projects"
     values:
       layout: "page"
-  - scope:                                              # For Documentation Only
-      path: ""                                          # For Documentation Only
-      type: "elements"                                  # For Documentation Only
-    values:                                             # For Documentation Only
-      layout: "element"                                 # For Documentation Only
 
 
 ### Exclude from processing ###

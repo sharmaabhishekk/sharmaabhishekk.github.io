@@ -8,7 +8,7 @@ weight: 3
 # **About Me**
 
 Hi I am **{{ site.author.name }}** :wave:,<br>
-I am a business student who's pursuing a career in data science. Other than that, I like to apply the same to football - the sport I fell in love with.
+I am a business student who's working towards a career in data science. Other than that, I like to pretend I understand football.
 
 <div class="row">
 {% include about/skills.html title="Programming Skills" source=site.data.programming-skills %}
