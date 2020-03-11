@@ -23,19 +23,21 @@ I'm gonna be using Python so you'll need that installed on your system to follow
 
 Other than that, we'll also we using the following Python libraries:
 
- Matplotlib - for the actual plotting,
- Pandas - wrangling the data,
- Requests - making a request to get the data,
- and Numpy - some more computing on the data
+* Matplotlib - for the actual plotting
+* Pandas - wrangling the data
+* Requests - making a request to get the data
+* Numpy - some more computing on the data
+
 
  All of those should be just a pip install away!
 
- ### Dataset
+### Dataset
 
  To create a passmap for a match, we'll need some event data. Statsbomb have you covered with their excellent free data. If you don't
  have a local copy of the data, don't worry - that's what the requests library was for.
 
- ### Basic Overview
+### Basic Overview
+
 
  What really is a passmap? Well, there's a lot going on here (and that put me off a bit the first time I saw these in the wild) but
  let's take a closer look at what information it's supposed to convey to us.
@@ -44,9 +46,9 @@ Other than that, we'll also we using the following Python libraries:
  passes played by the player). Finally we have some aesthetic details - the watermark, team's logo, match details.
  For the purpose of this post, we are going to ignore the watermark and the logo of the team.
 
- ### Getting started
+### Getting Started
 
- ##Imports
+## Imports
 
  ```python
 
@@ -75,7 +77,9 @@ ax = Pitch(ax)
 ```
 
 The next step would be to write a Class called Player. Why do that? Well, if you think about it a player is basically an object
-with certain attributes - name, a unique player_id, average position on the pitch, and the total number of passes attempted completed.
+with certain attributes - name, a unique player_id, and on whom we can run some methods -
+like calculate the total number of passes attempted completed, or their average position on the pitch. That's pretty much the
+textbook definition of an object!
 
 ```python
 
@@ -120,6 +124,24 @@ def load_file(match_id, getter="remote", path = None):
 
 ```
 
+I know for a fact that every match JSON file contains the lineups for both teams as the first two dictionaries in our list.
+Let's go ahead and look at it ourselves.
+
+```python
+print(match_dict[0])
+```
+
+This is important because we need the names, and ids of the players who started the match. So let's go ahead
+and write a small function to get all that data from the dictionary.
+
+```python
+
+def get_starters(match_dict, side="home"):
+    """ """
+    lineups = match_dict[0]["tactics"]["lineup"] if side == "home" else match_dict[1]["tactics"]["lineup"]
+    return lineups
+
+```
 
 
 
@@ -133,16 +155,3 @@ def load_file(match_id, getter="remote", path = None):
 
 
 
-
-
-
-
-<!-- ![preview](https://www.sketchappsources.com/resources/source-image/we-were-soldiers-landing-page-dbruggisser.jpg)
-
-## Search Movies
-
-![search](https://www.sketchappsources.com/resources/source-image/microsoft-windows-10-virtual-keyboard-diogo-sousa.png) -->
-
-<p class="text-center">
-{% include elements/button.html link="https://github.com/YoussefRaafatNasry/portfolYOU" text="Learn More" %}
-</p>
