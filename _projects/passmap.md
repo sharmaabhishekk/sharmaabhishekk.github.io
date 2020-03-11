@@ -143,13 +143,115 @@ def get_starters(match_dict, side="home"):
 
 ```
 
+We're almost set with all the functions and classes we're gonna need to define. Now, we're gonna need to call them. But before that,
+we're quickly going to pull the names of both the teams in a dictionary.
+
+```python
+side_dict = {"home": match_dict[0]["team"]["name"],
+             "away": match_dict[1]["team"]["name"] }
+
+print(side_dict)
+
+## {'home': 'France', 'away': 'Croatia'}
+```
+
+Let's go ahead and call our functions to get the data and the lineups.
+
+```python
+match_dict, df = load_file(match_id, getter="local", path = "C:\Repository\open-data\data\events")
+lineups = get_starters(match_dict, side=side)
+
+```
+Now we are going to create Player objects out of all the players in our lineups list. and put them all together in a list.
+
+```python
+player_objs = []
+starters = []
+for player in lineups:
+    starters.append(player["player"]["name"])
+    p = Player(player, df)
+    player_objs.append(p)
+```
+
+Now we clean up the events dataframe a little.
+The first step is to get only the events which are only open-play passes and only passes by the side we've chosen, and only those that are successful.
+We chain all these filters together using the query method.
+
+The next part is to group these passes together based on the player who passed the ball and the one who received the ball.
+For example, if Modric passed to Brozovic four times in the entire match, we are gonna have four separate rows in `total_pass_df`
+for it. But when we apply the groupby method, that's compressed into a single row with the new column count reflecting the value four.
+
+The final step is to get only the players who were in the starters list and the minimum passes played between them is greater
+than or equal to a certain value - I'm gonna go with 2.
+```python
+min_pass_count = 2
+total_pass_df = df.query(f"(type_name == 'Pass') & (pass_type_name not in ['Free Kick', 'Corner', 'Throw-in', 'Kick Off']) & (team_name == '{side_dict[side]}') & (pass_outcome_name not in ['Unknown','Out','Pass Offside','Injury Clearance', 'Incomplete'])")
+total_pass_df = total_pass_df.groupby(["player_name", "pass_recipient_name"]).size().reset_index(name="count")
+total_pass_df = total_pass_df.query(" (player_name == @starters) & (pass_recipient_name == @starters) & (count>=@min_pass_count) ")
+
+```
+
+Here's our final dataframe -
+
+```python
+
+print(total_pass_df)
+
+#     player_name pass_recipient_name  count
+#      Ante Rebić        Ivan Perišić      2
+#      Ante Rebić       Šime Vrsaljko      2
+# Danijel Subašić        Dejan Lovren      4
+# Danijel Subašić        Domagoj Vida      3
+#    Dejan Lovren     Danijel Subašić      3
+
+```
+So far so good. Now's the time to visualise our results.
 
 
+```python
+shrink_val = 1.5
+arrow_shift = 1
+
+for row in total_pass_df.itertuples():
+    link = row[3]
 
 
+    for player in player_objs:
+        if player.name == row[1]:
+            passer = player
+        if player.name == row[2]:
+            receiver = player
 
+    alpha = link/10
+    if alpha >1:
+        alpha=1
+    if abs( receiver.x - passer.x) > abs(receiver.y - passer.y):
 
+        if receiver.id > passer.id:
+            ax.annotate("", xy=(receiver.x, receiver.y + arrow_shift), xytext=(passer.x, passer.y + arrow_shift),
+                            arrowprops=dict(arrowstyle="->", color="0.5", shrinkA=shrink_val, shrinkB=shrink_val, lw = link*0.3, alpha=alpha))
 
+        elif passer.id > receiver.id:
+            ax.annotate("", xy=(receiver.x, receiver.y - arrow_shift), xytext=(passer.x, passer.y - arrow_shift),
+                            arrowprops=dict(arrowstyle="->", color="0.5", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.3, alpha=alpha))
+
+    elif abs(receiver.x - passer.x) <= abs(receiver.y - passer.y):
+
+        if receiver.id > passer.id:
+            ax.annotate("", xy=(receiver.x + arrow_shift, receiver.y), xytext=(passer.x + arrow_shift, passer.y),
+                            arrowprops=dict(arrowstyle="->", color="0.5", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.3, alpha=alpha))
+
+        elif passer.id > receiver.id:
+            ax.annotate("", xy=(receiver.x - arrow_shift, receiver.y), xytext=(passer.x - arrow_shift, passer.y),
+                            arrowprops=dict(arrowstyle="->", color="0.5", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.3, alpha=alpha))
+
+for player in player_objs:
+    ax.scatter(player.x, player.y, s=player.n_passes_completed*1.7, color="blue", zorder = 4)
+    ax.text(player.x, player.y, s=player.name.split(" ")[-1], rotation=270, va="top" if player.y<40 else "bottom", size=7)
+
+plt.show()
+
+```
 
 
 
