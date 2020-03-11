@@ -205,7 +205,29 @@ print(total_pass_df)
 #    Dejan Lovren     Danijel Subašić      3
 
 ```
-So far so good. Now's the time to visualise our results.
+So far so good. Now's the time to visualise our results. We're going to iterate over our dataframe, grab the players who did the
+passing and receiving, grab the player_object of those two players from our `player_objs` list and then grab their names,
+average positions, and their total passes.
+
+You could go ahead and plot them right now and they'd look like this
+
+There's room for some improvement though. We are not able to tell, between Player A and Player B, who passed more to whom.
+If Modric passes to Brozovic ten times in a match and Brozovic only returns the favour
+once, that information is lost to us because there's just one thick line between both of them. For this reason, it might make
+sense to use arrows to denote direction but also make sure they're not overlapping.
+
+To do that, we use some if-else logic. We pick up a unique identifier for the players - the player_id will do just fine.
+Then we can compare the player_id - if player_id of Player A is greater than Player B, shift the arrow from A to B a little to
+the left. If B is greater than A, shift the arrow a little to the right. What ends up happening is that this
+
+turns into this.
+
+We can also apply the same logic to playes who are on the same line horizontally - the only difference would be that instead of
+shifting the arrow left and right, we'll shift them a little up and a little down.
+So again, this
+
+becomes this.
+
 
 
 ```python
@@ -244,7 +266,11 @@ for row in total_pass_df.itertuples():
         elif passer.id > receiver.id:
             ax.annotate("", xy=(receiver.x - arrow_shift, receiver.y), xytext=(passer.x - arrow_shift, passer.y),
                             arrowprops=dict(arrowstyle="->", color="0.5", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.3, alpha=alpha))
+```
+The final step of our visualisation is to add scatter points to the players' locations and also annotate them with their last names.
+We can then add some extra heading and sub-heading information.
 
+```python
 for player in player_objs:
     ax.scatter(player.x, player.y, s=player.n_passes_completed*1.7, color="blue", zorder = 4)
     ax.text(player.x, player.y, s=player.name.split(" ")[-1], rotation=270, va="top" if player.y<40 else "bottom", size=7)
