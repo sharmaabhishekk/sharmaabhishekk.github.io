@@ -16,7 +16,7 @@ In this blog post, we'll go through the steps to creating your own in Python usi
 
 (If you're just interested in the code, the github link's [here](https://github.com/sharmaabhishekk/passmaps))
 
-### Pre-requisites
+## Pre-requisites
 
 I'm gonna be using Python so you'll need that installed on your system to follow along. If you don't already, you can go over to
 [python](python.org) and get it for your system.
@@ -31,12 +31,12 @@ Other than that, we'll also we using the following Python libraries:
 
  All of those should be just a pip install away!
 
-### Dataset
+## Dataset
 
  To create a passmap for a match, we'll need some event data. Statsbomb have you covered with their excellent free data. If you don't
  have a local copy of the data, don't worry - that's what the requests library was for.
 
-### Basic Overview
+## Basic Overview
 
 
  What really is a passmap? Well, there's a lot going on here (and that put me off a bit the first time I saw these in the wild) but
@@ -46,9 +46,9 @@ Other than that, we'll also we using the following Python libraries:
  passes played by the player). Finally we have some aesthetic details - the watermark, team's logo, match details.
  For the purpose of this post, we are going to ignore the watermark and the logo of the team.
 
-### Getting Started
+## Getting Started
 
-## Imports
+### Imports
 
  ```python
 
@@ -58,25 +58,27 @@ import matplotlib.pyplot as plt
 import requests
 from pandas import json_normalize
 import numpy as np
-from Pitch.pitch import Pitch
+from pitch import Pitch
 
  ```
 
-Statsbomb has a unique match_id for every match in the open-data repository. The match we're going to look at is the FIFA WC 2018 Final
-between France and Croatia. The id for it is "8658" and let's look at Croatia to start with (which is the away side in the match file).
-Let's set some variables to that data and then also get our figure and axis instances from matplotlib.
+Statsbomb has a unique `match_id` for every match in the open-data repository. The match we're going to look at is the FIFA WC 2018 Final
+between France and Croatia. The id for it is "8658" and let's look at **Croatia** to start with (which was the away side in the match).
+Let's set some variables to that data and also grab our figure and axis instances from matplotlib.
 
 ```python
 
 match_id = "8658"
 side = "away"
+color = "blue"
+min_pass_count = 2 ##minimum number of passes for a link to be plotted
 
 fig, ax = plt.subplots()
 ax = Pitch(ax)
 
 ```
 
-The next step would be to write a Class called Player. Why do that? Well, if you think about it a player is basically an object
+The next step would be to write a Class called `Player`. Why do that? Well, if you think about it, a player is basically an object
 with certain attributes - name, a unique player_id, and on whom we can run some methods -
 like calculate the total number of passes attempted completed, or their average position on the pitch. That's pretty much the
 textbook definition of an object!
@@ -100,13 +102,14 @@ class Player:
 
 ## Loading the data
 
-We can either load the data from the Github repository online or from your local copy of it. Either way, let's write a function to
-take care of both cases. We're going to tell the function which match (match_id), and how to get the data (remote/local). It's gonna return
+We can either load the data from the Github [repository](https://github.com/statsbomb/open-data) online or from your local copy of it. Let's write a function to
+take care of both cases. We're going to tell the function which match **(match_id)**, and how to get the data **(remote/local)**. It's gonna return
 the data (which is going to be in JSON format) and also the data formatted to a Pandas dataframe.
 
 ```python
 
 def load_file(match_id, getter="remote", path = None):
+    """ """
 
     if getter == "local":
         with open(f"{path}/{match_id}.json", "r", encoding="utf-8") as f:
@@ -159,8 +162,9 @@ def get_starters(match_dict, side="home"):
 
 ```
 
-We're almost set with all the functions and classes we're gonna need to define. Now, we're gonna need to call them. But before that,
-we're quickly going to pull the names of both the teams in a dictionary.
+We're almost set with all the functions and classes we're gonna need to define. Now, we're going to need to call them. But before that,
+we're quickly going to pull the names of both the teams in a dictionary. That's gonna be helpful later when we're adding text to
+the viz.
 
 ```python
 side_dict = {"home": match_dict[0]["team"]["name"],
@@ -178,7 +182,7 @@ match_dict, df = load_file(match_id, getter="remote")
 lineups = get_starters(match_dict, side=side)
 
 ```
-Now we are going to create Player objects out of all the players in our lineups list. and put them all together in a dictionary.
+Now we are going to create `Player` objects out of all the players in our lineups list and put them all together in a dictionary.
 
 ```python
 player_objs_dict = {}
@@ -304,6 +308,10 @@ fig.tight_layout()
 ```
 
 ![Final](../images/final.png)
+
+Pretty neat, huh? There's still room for a lot of improvements/experimenting. We could try some network analysis on the dataframe
+and find out the centrality measures - like betweenness centrality to find out the most important player(s).
+
 
 
 
