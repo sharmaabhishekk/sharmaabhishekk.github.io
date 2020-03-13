@@ -29,11 +29,11 @@ Other than that, we'll also we using the following Python libraries:
 * Numpy - some more computing on the data
 
 
- All of those should be just a pip install away!
+ All of those should be just a `pip install` away!
 
 ## Dataset
 
-To create a passmap for a match, we'll need some event data. Statsbomb have you covered with their excellent free data. If you don't
+To create a passmap for a match, we'll need some event data. Statsbomb have you covered with their excellent free [data](https://github.com/statsbomb/open-data). If you don't
 have a local copy of the data, don't worry - that's what the requests library was for.
 
 ## Basic Overview
@@ -44,7 +44,7 @@ What really is a passmap?
 ![Sample](../images/11tegen11.png)
 
 
-Well, there's a lot going on here (and that threw me off a bit the first time I saw these in the wild) but
+This is the popular version by @[11tegen11](https://twitter.com/11tegen11). At first glance, it might seem like there's a lot going on here (and that kinda threw me off a bit the first time I saw these in the wild) but
 let's take a closer look at what information it's supposed to convey to us.
 
 The two most important things of note are - the ***average position of the player***,
@@ -55,6 +55,7 @@ passes played by the player**). Finally we have some aesthetic details - the wat
 For the purpose of this post, we are going to ignore the watermark and the logo of the team.
 
 ## Getting Started
+
 
 ### Imports
 
@@ -111,7 +112,7 @@ class Player:
 ## Loading the data
 
 We can either load the data from the Github [repository](https://github.com/statsbomb/open-data) online or from your local copy of it. Let's write a function to
-take care of both cases. We're going to tell the function which match **(match_id)**, and how to get the data **(remote/local)**. It's gonna return
+take care of both cases. We're going to tell the function which match (**match_id**), and how to get the data (**remote/local**). It's gonna return
 the data (which is going to be in JSON format) and also the data formatted to a Pandas dataframe.
 
 ```python
@@ -158,7 +159,7 @@ print(match_dict[0])
    {'player': {'id': 3604, 'name': 'Olivier Giroud'}, 'position': {'id': 24, 'name': 'Left Center Forward'}, 'jersey_number': 9}]}}"""
 ```
 
-This is important because we need the names, and ids of the players who started the match. So let's go ahead
+This is important because we need the **names**, and **ids** of the players who started the match. So let's go ahead
 and write a small function to get all that data from the dictionary.
 
 ```python
@@ -204,7 +205,7 @@ for player in lineups:
 ## Data-cleaning
 
 Now we clean up the events dataframe a little.
-The first step is to get only the events which are only open-play passes and only passes by the side we've chosen, and only those that are successful.
+The first step is to get only the events which are **only open-play passes and only passes by the side we've chosen, and only those that are successful.**
 We chain all these filters together using the query method.
 
 The next part is to group these passes together based on the player who passed the ball and the one who received the ball.
@@ -212,7 +213,7 @@ For example, if Modric passed to Brozovic four times in the entire match, we are
 for it. But when we apply the groupby method, that's compressed into a single row with the new column count reflecting the value four.
 
 The final step is to get only the players who were in the starters list and the minimum passes played between them is greater
-than or equal to a certain value - I'm gonna go with 2.
+than or equal to a certain value - I'm gonna go with 2. This is initialised right at the beginning :point_up: .
 
 ```python
 total_pass_df = df.query(f"(type_name == 'Pass') & (pass_type_name not in ['Free Kick', 'Corner', 'Throw-in', 'Kick Off']) &"\
@@ -239,7 +240,7 @@ print(total_pass_df)
 ## Visualization
 
 So far so good. Now's the time to visualise our results. We're going to iterate over our dataframe, grab the players who did the
-passing and receiving, grab the player_object of those two players from our `player_objs` list and then grab their names,
+passing and receiving, grab the player_object of those two players from our `player_objs` dictionary and then grab their names,
 average positions, and their total passes.
 
 You could go ahead and plot them right now using `ax.plot` and they'd look like this.
@@ -318,9 +319,10 @@ fig.tight_layout()
 ![Final](../images/final.png)
 
 Pretty neat, huh? There's still room for a lot of improvements/experimenting. We could try some network analysis on the dataframe
-and find out the centrality measures - like betweenness centrality to find out the most important player(s). Passmaps also have a lot of
-limitations: the affinity for average position may lead to pretty wildly inaccurate results when players change positions a lot
-in a given match. At any rate, I hope this was a fruitful/fun python exercise.
+and find out the centrality measures - like betweenness centrality to find out the most important player(s).
+Passmaps also have a few limitations: the affinity for average position may lead to pretty wildly inaccurate results when players change positions a lot
+in a given match. At any rate, I hope this was a fruitful/fun python exercise. For any sort of feedback, feel free to reach out
+to be on Twitter!
 
 
 
