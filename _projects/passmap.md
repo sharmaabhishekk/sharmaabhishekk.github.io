@@ -33,18 +33,26 @@ Other than that, we'll also we using the following Python libraries:
 
 ## Dataset
 
- To create a passmap for a match, we'll need some event data. Statsbomb have you covered with their excellent free data. If you don't
- have a local copy of the data, don't worry - that's what the requests library was for.
+To create a passmap for a match, we'll need some event data. Statsbomb have you covered with their excellent free data. If you don't
+have a local copy of the data, don't worry - that's what the requests library was for.
 
 ## Basic Overview
 
 
- What really is a passmap? Well, there's a lot going on here (and that put me off a bit the first time I saw these in the wild) but
- let's take a closer look at what information it's supposed to convey to us.
- There are two important things which this shows - the average position of the player, and the number of passes between any
- two given players. Apart from that, we also have the players' names, and the players' dot sizes (which indicate the total number of
- passes played by the player). Finally we have some aesthetic details - the watermark, team's logo, match details.
- For the purpose of this post, we are going to ignore the watermark and the logo of the team.
+What really is a passmap?
+
+![Sample](../images/11tegen11.png)
+
+
+Well, there's a lot going on here (and that threw me off a bit the first time I saw these in the wild) but
+let's take a closer look at what information it's supposed to convey to us.
+
+The two most important things of note are - the ***average position of the player***,
+and the ***number of passes*** between any two given players.
+
+Apart from that, we also have the **players' names**, and the players' dot sizes (which indicate the **total number of
+passes played by the player**). Finally we have some aesthetic details - the watermark, team's logo, match details.
+For the purpose of this post, we are going to ignore the watermark and the logo of the team.
 
 ## Getting Started
 
@@ -238,20 +246,20 @@ You could go ahead and plot them right now using `ax.plot` and they'd look like 
 
 ![Only_Lines](../images/only_lines.png)
 
-There's room for some improvement though. We are not able to tell, between Player A and Player B, who passed more to whom.
+There's room for some improvement though. We are not able to tell, **between Player A and Player B, who passed more to whom**.
 If Modric passes to Brozovic ten times in a match and Brozovic only returns the favour
-once, that information is lost to us because there's just one thick line between both of them. For this reason, it might make
-sense to use arrows to denote direction but also make sure they're not overlapping.
+once, that information is lost to us because there's just one thick line between both of them.
+For this reason, it might make sense to use arrows to denote direction but also make sure they're not overlapping.
 
-To do that, we use some if-else logic. We pick up a unique identifier for the players - the player_id will do just fine.
-Then we can compare the player_id - if player_id of Player A is greater than Player B, shift the arrow from A to B a little to
+To do that, we use some if-else logic. We pick up a unique identifier for the players - the `player_id` will do just fine.
+Then we can compare the `player_id` - if `player_id` of Player A is greater than Player B, shift the arrow from A to B a little to
 the left. If B is greater than A, shift the arrow a little to the right. Basically, as seen in the figure below -
 
 ![Comparison](../images/demo_.png)
 
 
-We can also apply the same logic to playes who are on the same line horizontally - the only difference would be that instead of
-shifting the arrow left and right, we'll shift them a little up and a little down.
+**Note**: *We can also apply the same logic to playes who are on the same line horizontally - the only difference would be that instead of
+shifting the arrow left and right, we'll shift them a little up and a little down.*
 
 
 ```python
@@ -310,7 +318,9 @@ fig.tight_layout()
 ![Final](../images/final.png)
 
 Pretty neat, huh? There's still room for a lot of improvements/experimenting. We could try some network analysis on the dataframe
-and find out the centrality measures - like betweenness centrality to find out the most important player(s).
+and find out the centrality measures - like betweenness centrality to find out the most important player(s). Passmaps also have a lot of
+limitations: the affinity for average position may lead to pretty wildly inaccurate results when players change positions a lot
+in a given match. At any rate, I hope this was a fruitful/fun python exercise.
 
 
 
