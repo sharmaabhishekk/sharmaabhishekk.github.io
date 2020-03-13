@@ -211,7 +211,7 @@ average positions, and their total passes.
 
 You could go ahead and plot them right now using `ax.plot` and they'd look like this.
 
-![Only_Lines](./images/only_lines.png)
+![Only_Lines](../images/only_lines.png)
 
 There's room for some improvement though. We are not able to tell, between Player A and Player B, who passed more to whom.
 If Modric passes to Brozovic ten times in a match and Brozovic only returns the favour
@@ -222,7 +222,7 @@ To do that, we use some if-else logic. We pick up a unique identifier for the pl
 Then we can compare the player_id - if player_id of Player A is greater than Player B, shift the arrow from A to B a little to
 the left. If B is greater than A, shift the arrow a little to the right. Basically, as seen in the figure below -
 
-![Comparison](./images/demo_.png)
+![Comparison](../images/demo_.png)
 
 
 We can also apply the same logic to playes who are on the same line horizontally - the only difference would be that instead of
