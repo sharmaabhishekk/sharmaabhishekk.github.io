@@ -14,7 +14,7 @@ performing said roles.
 
 In this blog post, we'll go through the steps to creating your own in Python using Statsbomb's open data.
 
-(If you're just interested in the code, the github link's [here](https://github.com/sharmaabhishekk))
+(If you're just interested in the code, the github link's [here](https://github.com/sharmaabhishekk/passmaps))
 
 ### Pre-requisites
 
@@ -129,6 +129,22 @@ Let's go ahead and look at it ourselves.
 
 ```python
 print(match_dict[0])
+
+"""{'id': '47638847-fd43-4656-b49c-cff64e5cfc0a', 'index': 1, 'period': 1, 'timestamp': '00:00:00.000', 'minute': 0,
+ 'second': 0, 'type': {'id': 35, 'name': 'Starting XI'}, 'possession': 1,'possession_team': {'id': 771, 'name': 'France'},
+ 'play_pattern': {'id': 1, 'name': 'Regular Play'}, 'team': {'id': 771, 'name': 'France'}, 'duration': 0.0,
+  'tactics': {'formation': 442, 'lineup':
+  [{'player': {'id': 3099, 'name': 'Hugo Lloris'}, 'position': {'id': 1, 'name': 'Goalkeeper'}, 'jersey_number': 1},
+  {'player': {'id': 5476, 'name': 'Benjamin Pavard'}, 'position': {'id': 2, 'name': 'Right Back'}, 'jersey_number': 2},
+  {'player': {'id': 5485, 'name': 'Raphaël Varane'}, 'position': {'id': 3, 'name': 'Right Center Back'}, 'jersey_number': 4},
+  {'player': {'id': 5492, 'name': 'Samuel Yves Umtiti'}, 'position': {'id': 5, 'name': 'Left Center Back'}, 'jersey_number': 5},
+   {'player': {'id': 5484, 'name': 'Lucas Hernández Pi'}, 'position': {'id': 6, 'name': 'Left Back'}, 'jersey_number': 21},
+   {'player': {'id': 20004, 'name': 'Paul Pogba'}, 'position': {'id': 9, 'name': 'Right Defensive Midfield'}, 'jersey_number': 6},
+   {'player': {'id': 3961, 'name': 'N"Golo Kanté'}, 'position': {'id': 11, 'name': 'Left Defensive Midfield'}, 'jersey_number': 13},
+   {'player': {'id': 3009, 'name': 'Kylian Mbappé Lottin'}, 'position': {'id': 12, 'name': 'Right Midfield'}, 'jersey_number': 10},
+   {'player': {'id': 4375, 'name': 'Blaise Matuidi'}, 'position': {'id': 16, 'name': 'Left Midfield'}, 'jersey_number': 14},
+   {'player': {'id': 5487, 'name': 'Antoine Griezmann'}, 'position': {'id': 22, 'name': 'Right Center Forward'}, 'jersey_number': 7},
+   {'player': {'id': 3604, 'name': 'Olivier Giroud'}, 'position': {'id': 24, 'name': 'Left Center Forward'}, 'jersey_number': 9}]}}"""
 ```
 
 This is important because we need the names, and ids of the players who started the match. So let's go ahead
@@ -158,20 +174,22 @@ print(side_dict)
 Let's go ahead and call our functions to get the data and the lineups.
 
 ```python
-match_dict, df = load_file(match_id, getter="local", path = "C:\Repository\open-data\data\events")
+match_dict, df = load_file(match_id, getter="remote")
 lineups = get_starters(match_dict, side=side)
 
 ```
-Now we are going to create Player objects out of all the players in our lineups list. and put them all together in a list.
+Now we are going to create Player objects out of all the players in our lineups list. and put them all together in a dictionary.
 
 ```python
-player_objs = []
+player_objs_dict = {}
 starters = []
 for player in lineups:
-    starters.append(player["player"]["name"])
-    p = Player(player, df)
-    player_objs.append(p)
+    starters.append(player["player"]["name"]) ##To remove all substitutes from our final grouped_df
+    p = Player(player, df) ##Calling the Player class
+    player_objs_dict.update({player["player"]["name"]: p}) ##For lookup during plotting the grouped_df
+
 ```
+## Data-cleaning
 
 Now we clean up the events dataframe a little.
 The first step is to get only the events which are only open-play passes and only passes by the side we've chosen, and only those that are successful.
@@ -183,12 +201,12 @@ for it. But when we apply the groupby method, that's compressed into a single ro
 
 The final step is to get only the players who were in the starters list and the minimum passes played between them is greater
 than or equal to a certain value - I'm gonna go with 2.
+
 ```python
-min_pass_count = 2
-total_pass_df = df.query(f"(type_name == 'Pass') & (pass_type_name not in ['Free Kick', 'Corner', 'Throw-in', 'Kick Off']) & (team_name == '{side_dict[side]}') & (pass_outcome_name not in ['Unknown','Out','Pass Offside','Injury Clearance', 'Incomplete'])")
+total_pass_df = df.query(f"(type_name == 'Pass') & (pass_type_name not in ['Free Kick', 'Corner', 'Throw-in', 'Kick Off']) &"\
+                                 f"(team_name == '{side_dict[side]}') & (pass_outcome_name not in ['Unknown','Out','Pass Offside','Injury Clearance', 'Incomplete'])")
 total_pass_df = total_pass_df.groupby(["player_name", "pass_recipient_name"]).size().reset_index(name="count")
 total_pass_df = total_pass_df.query(" (player_name == @starters) & (pass_recipient_name == @starters) & (count>=@min_pass_count) ")
-
 ```
 
 Here's our final dataframe -
@@ -205,6 +223,9 @@ print(total_pass_df)
 #    Dejan Lovren     Danijel Subašić      3
 
 ```
+
+## Visualization
+
 So far so good. Now's the time to visualise our results. We're going to iterate over our dataframe, grab the players who did the
 passing and receiving, grab the player_object of those two players from our `player_objs` list and then grab their names,
 average positions, and their total passes.
@@ -229,56 +250,62 @@ We can also apply the same logic to playes who are on the same line horizontally
 shifting the arrow left and right, we'll shift them a little up and a little down.
 
 
-
-
 ```python
-shrink_val = 1.5
-arrow_shift = 1
+arrow_shift = 1 ##Units by which the arrow moves from its original position
+shrink_val = 1.5 ##Units by which the arrow is shortened from the end_points
+
+##Visualising the passmap
 
 for row in total_pass_df.itertuples():
-    link = row[3]
 
+    link = row[3] ## for the arrow-width and the alpha
+    passer = player_objs_dict[row[1]]
+    receiver = player_objs_dict[row[2]]
 
-    for player in player_objs:
-        if player.name == row[1]:
-            passer = player
-        if player.name == row[2]:
-            receiver = player
-
-    alpha = link/10
+    alpha = link/15
     if alpha >1:
         alpha=1
+
     if abs( receiver.x - passer.x) > abs(receiver.y - passer.y):
 
         if receiver.id > passer.id:
             ax.annotate("", xy=(receiver.x, receiver.y + arrow_shift), xytext=(passer.x, passer.y + arrow_shift),
-                            arrowprops=dict(arrowstyle="->", color="0.5", shrinkA=shrink_val, shrinkB=shrink_val, lw = link*0.3, alpha=alpha))
+                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw = link*0.12, alpha=alpha))
 
         elif passer.id > receiver.id:
             ax.annotate("", xy=(receiver.x, receiver.y - arrow_shift), xytext=(passer.x, passer.y - arrow_shift),
-                            arrowprops=dict(arrowstyle="->", color="0.5", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.3, alpha=alpha))
+                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.12, alpha=alpha))
 
     elif abs(receiver.x - passer.x) <= abs(receiver.y - passer.y):
 
         if receiver.id > passer.id:
             ax.annotate("", xy=(receiver.x + arrow_shift, receiver.y), xytext=(passer.x + arrow_shift, passer.y),
-                            arrowprops=dict(arrowstyle="->", color="0.5", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.3, alpha=alpha))
+                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.12, alpha=alpha))
 
         elif passer.id > receiver.id:
             ax.annotate("", xy=(receiver.x - arrow_shift, receiver.y), xytext=(passer.x - arrow_shift, passer.y),
-                            arrowprops=dict(arrowstyle="->", color="0.5", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.3, alpha=alpha))
+                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.12, alpha=alpha))
+
+
 ```
 The final step of our visualisation is to add scatter points to the players' locations and also annotate them with their last names.
-We can then add some extra heading and sub-heading information.
+We can then add some extra heading and sub-heading information. Here's our final result after all that's taken care of.
 
 ```python
-for player in player_objs:
-    ax.scatter(player.x, player.y, s=player.n_passes_completed*1.7, color="blue", zorder = 4)
-    ax.text(player.x, player.y, s=player.name.split(" ")[-1], rotation=270, va="top" if player.y<40 else "bottom", size=7)
+for name, player in player_objs_dict.items():
 
-plt.show()
+    ax.scatter(player.x, player.y, s=player.n_passes_completed*1.3, color=color, zorder = 4)
+    ax.text(player.x, player.y+2 if player.y >40 else player.y -2, s=player.name.split(" ")[-1], rotation=270, va="top" if player.y<40 else "bottom", size=6.5, fontweight="book", zorder=7, color=color)
 
+ax.text(124, 80, f"{side_dict[side]}", size=12, fontweight="demibold", rotation=270, color=color, va="top")
+ax.text(122, 80, f"{side_dict['home']} vs {side_dict['away']}", size=8, fontweight="demibold", rotation = 270, va="top")
+
+fig.tight_layout()
 ```
+
+![Final](../images/final.png)
+
+
 
 
 
