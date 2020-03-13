@@ -321,8 +321,9 @@ fig.tight_layout()
 Pretty neat, huh? There's still room for a lot of improvements/experimenting. We could try some network analysis on the dataframe
 and find out the centrality measures - like betweenness centrality to find out the most important player(s).
 Passmaps also have a few limitations: the affinity for average position may lead to pretty wildly inaccurate results when players change positions a lot
-in a given match. At any rate, I hope this was a fruitful/fun python exercise. For any sort of feedback, feel free to reach out
-to be on Twitter!
+in a given match.
+
+I hope this was a fruitful/fun python exercise. For any sort of feedback, feel free to reach out to me on Twitter!
 
 
 
