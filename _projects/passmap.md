@@ -209,7 +209,9 @@ So far so good. Now's the time to visualise our results. We're going to iterate 
 passing and receiving, grab the player_object of those two players from our `player_objs` list and then grab their names,
 average positions, and their total passes.
 
-You could go ahead and plot them right now and they'd look like this
+You could go ahead and plot them right now using `ax.plot` and they'd look like this.
+
+![Only_Lines](./images/only_lines.png)
 
 There's room for some improvement though. We are not able to tell, between Player A and Player B, who passed more to whom.
 If Modric passes to Brozovic ten times in a match and Brozovic only returns the favour
@@ -218,15 +220,14 @@ sense to use arrows to denote direction but also make sure they're not overlappi
 
 To do that, we use some if-else logic. We pick up a unique identifier for the players - the player_id will do just fine.
 Then we can compare the player_id - if player_id of Player A is greater than Player B, shift the arrow from A to B a little to
-the left. If B is greater than A, shift the arrow a little to the right. What ends up happening is that this
+the left. If B is greater than A, shift the arrow a little to the right. Basically, as seen in the figure below -
 
-turns into this.
+![Comparison](./images/demo_.png)
+
 
 We can also apply the same logic to playes who are on the same line horizontally - the only difference would be that instead of
 shifting the arrow left and right, we'll shift them a little up and a little down.
-So again, this
 
-becomes this.
 
 
 
