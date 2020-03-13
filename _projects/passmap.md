@@ -88,7 +88,7 @@ ax = Pitch(ax)
 ```
 
 The next step would be to write a Class called `Player`. Why do that? Well, if you think about it, a player is basically an object
-with certain attributes - name, a unique player_id, and on whom we can run some methods -
+with certain **attributes** - name, a unique player_id, and on whom we can run some **methods** -
 like calculate the total number of passes attempted completed, or their average position on the pitch. That's pretty much the
 textbook definition of an object!
 
