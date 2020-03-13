@@ -67,7 +67,7 @@ import matplotlib.pyplot as plt
 import requests
 from pandas import json_normalize
 import numpy as np
-from pitch import Pitch
+from pitch import Pitch ##a helper function to quickly give us a pitch
 
  ```
 
