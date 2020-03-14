@@ -12,18 +12,18 @@ Passmaps are one of the most popular visualizations in football right now. And f
 about a single match in an intuitive manner. Passing trends, networks, players' roles in a given system, and even how well they're
 performing said roles.
 
-In this blog post, we'll go through the steps to creating your own in Python using Statsbomb's open data.
+In this post, we'll go through the steps to creating your own in Python using Statsbomb's open data.
 
 (If you're just interested in the code, the github link's [here](https://github.com/sharmaabhishekk/passmaps))
 
 ## Pre-requisites
 
 I'm gonna be using Python so you'll need that installed on your system to follow along. If you don't already, you can go over to
-[python](python.org) and get it for your system.
+[python.org](python.org) and get it for your system.
 
 Other than that, we'll also we using the following Python libraries:
 
-* Matplotlib - for the actual plotting
+* Matplotlib - for the plotting
 * Pandas - wrangling the data
 * Requests - making a request to get the data
 * Numpy - some more computing on the data
@@ -51,7 +51,8 @@ The two most important things of note are - the ***average position of the playe
 and the ***number of passes*** between any two given players.
 
 Apart from that, we also have the **players' names**, and the players' dot sizes (which indicate the **total number of
-passes played by the player**). Finally we have some aesthetic details - the watermark, team's logo, match details.
+passes played by the player**). 
+Finally we have some aesthetic details - the watermark, team's logo, match details.
 For the purpose of this post, we are going to ignore the watermark and the logo of the team.
 
 ## Getting Started
@@ -72,7 +73,7 @@ from pitch import Pitch ##a helper function to quickly give us a pitch
  ```
 
 Statsbomb has a unique `match_id` for every match in the open-data repository. The match we're going to look at is the FIFA WC 2018 Final
-between France and Croatia. The id for it is "8658" and let's look at **Croatia** to start with (which was the away side in the match).
+between France and Croatia. The id for it is **"8658"** and let's look at **Croatia** to start with (which was the away side in the match).
 Let's set some variables to that data and also grab our figure and axis instances from matplotlib.
 
 ```python
@@ -259,7 +260,7 @@ the left. If B is greater than A, shift the arrow a little to the right. Basical
 ![Comparison](../images/demo_.png)
 
 
-**Note**: *We can also apply the same logic to playes who are on the same line horizontally - the only difference would be that instead of
+**Note**: *We can also apply the same logic to players who are on the same line horizontally - the only difference would be that instead of
 shifting the arrow left and right, we'll shift them a little up and a little down.*
 
 
