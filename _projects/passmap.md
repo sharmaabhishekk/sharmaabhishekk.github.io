@@ -2,7 +2,7 @@
 name: Creating Passmaps in Python
 tools: [Python, Matplotlib, Passmaps, Statsbomb]
 image: "../images/movie.gif"
-description: In this post, we'll try to create a passmap in Python using Matplotib and Pandas.
+description: Passmaps using Matplotib and Pandas.
 ---
 
 
