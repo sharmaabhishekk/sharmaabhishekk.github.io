@@ -51,7 +51,7 @@ The two most important things of note are - the ***average position of the playe
 and the ***number of passes*** between any two given players.
 
 Apart from that, we also have the **players' names**, and the players' dot sizes (which indicate the **total number of
-passes played by the player**). 
+passes played by the player**).
 Finally we have some aesthetic details - the watermark, team's logo, match details.
 For the purpose of this post, we are going to ignore the watermark and the logo of the team.
 
@@ -69,6 +69,10 @@ import requests
 from pandas import json_normalize
 import numpy as np
 from pitch import Pitch ##a helper function to quickly give us a pitch
+import warnings
+
+from pandas.core.common import SettingWithCopyWarning
+warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 
  ```
 
@@ -125,6 +129,11 @@ def load_file(match_id, getter="remote", path = None):
         with open(f"{path}/{match_id}.json", "r", encoding="utf-8") as f:
             match_dict = json.load(f)
             df = json_normalize(match_dict, sep="_")
+            df = df.query("location == location")
+            df[['x','y']] = pd.DataFrame(df.location.values.tolist(), index= df.index)
+            df['y'] = 80 - df['y'] ##Reversing the y-axis co-ordinates because Statsbomb use this weird co-ordinate system
+            df['location'] = df[['x', 'y']].apply(list, axis=1)
+
         return match_dict, df
 
     elif getter == "remote":
@@ -132,6 +141,10 @@ def load_file(match_id, getter="remote", path = None):
 
         match_dict = json.loads(resp.text)
         df = json_normalize(match_dict, sep="_")
+        df = df.query("location == location")
+        df[['x','y']] = pd.DataFrame(df.location.values.tolist(), index= df.index)
+        df['y'] = 80 - df['y'] ##Reversing the y-axis co-ordinates because Statsbomb use this weird co-ordinate system
+        df['location'] = df[['x', 'y']].apply(list, axis=1)
 
         return match_dict, df
 
@@ -325,6 +338,12 @@ Passmaps also have a few limitations: the affinity for average position may lead
 in a given match.
 
 I hope this was a fruitful/fun python exercise. For any sort of feedback, feel free to reach out to me on Twitter!
+
+__________________________
+
+**Note**: *Since I first published this post, I realized I had made a stupid error initially. I hadn't noticed that
+Statsbomb use the reversed co-ordinate system for the y-axis. Hence all players of the right ended up on the left and vice-versa.
+Full credit to [Soumyajit Bose](https://twitter.com/MessiBose) for catching that. I've fixed the code to take care of that.*
 
 
 
