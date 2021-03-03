@@ -1,7 +1,7 @@
 ---
 name: Player Roles Clustering 
 tools: [Python, Sklearn, Clustering, Fbref]
-image: "../images/player_roles_clustering/kyle_walker.png"
+image: "../images/player_roles_clustering/kyle_walker.png" 
 description: Re-implementing ASA's Player Roles Clustering Method in Python
 ---
 
