@@ -6,344 +6,363 @@ description: Re-implementing ASA's Player Roles Clustering Method in Python
 ---
 
 
-# Re-implementing Player Roles CLustering Method in Python
+# Re-implementing Player Roles Clustering in Python
 
-Passmaps are one of the most popular visualizations in football right now. And for good reason. They pack a lot of useful information
-about a single match in an intuitive manner. Passing trends, networks, players' roles in a given system, and even how well they're
-performing said roles.
+With so much public work happening in the football analytics sphere in the last year, there have been tons of new and interesting ideas popping up. With that, there have also been a lot of newcomers into the field. One of the most popular questions is "*How to get started with football analytics?*". While there are lots of tutorials and guides, I personally feel like there's a lot of educational value in simply re-implementing others' ideas. That is, you see a model/methodology in another language or framework and you try to flesh it out in code in *your* preferred language. Aside from how it is a learning experience for *you* yourself, you're also contributing to the open-source football analytics community. Having mulitple methods to do the same thing definitely helps to expand the original idea's reach.
 
-In this post, we'll go through the steps to creating your own in Python using Statsbomb's open data.
+To that end, I have decided to implement this excellent blogpost from [Michael Imburgio](http://michaelimburgio.com) -  ["DEFINING ROLES: HOW EVERY PLAYER CONTRIBUTES TO GOALS"](https://www.americansocceranalysis.com/home/2020/8/3/defining-roles-how-every-player-contributes-to-goals). In the article, Michael tries to move past the on-paper formations for players and instead, cluster them based on the roles they're performing on the pitch. Personally, this is one of the best written pieces on clustering players. If you haven't read it already, you should because a) it's really cool, and b) I'll be referencing it heavily henceforth. 
 
-(If you're just interested in the code, the github link's [here](https://github.com/sharmaabhishekk/passmaps))
+Michael has also made the original R code and the MLS data(!) available [here](https://github.com/mimburgi/SoccerStuff/tree/master/ASAclusters). We'll try to work this out in Python instead of R and I've also changed the dataset; instead of the MLS, we'll use the Premier League 2019/20 dataset. This is mostly because I am more familiar with the PL than the MLS. 
+
+My objective for this post is pretty simple: to try and stay as close to the original idea as possible and hopefully being able to replicate their results. 
+
+(If you're just interested in just the code for this post, the github link's [here]())
 
 ## Pre-requisites
 
-I'm gonna be using Python so you'll need that installed on your system to follow along. If you don't already, you can go over to
-[python.org](python.org) and get it for your system.
+I'm assuming you already have python and R installed (yeah I know I said python only but we'll need R for a teeny tiny part). In addition, we will need these python libraries:
 
-Other than that, we'll also we using the following Python libraries:
+* Matplotlib - Plotting
+* Pandas - Pre-processing and data manipulation
+* Numpy - Array manipulation
+* Rpy2 - Interacting with R inside Python
+* Sklearn - Hierarchical clustering, dimension reduction 
 
-* Matplotlib - for the plotting
-* Pandas - wrangling the data
-* Requests - making a request to get the data
-* Numpy - some more computing on the data
+Optional stuff:
 
+* Factor-analyzer - Analysing the factor importances for our model
+* Advanced-pca - Performing PCA decomposition
+* Scipy - Visualizing the dendogram
 
- All of those should be just a `pip install` away!
+All of those should be just a `pip install` away!
+
+For R, you'll just need two libraries - `psych` and `dplyr`. 
 
 ## Dataset
 
-To create a passmap for a match, we'll need some event data. Statsbomb have you covered with their excellent free [data](https://github.com/statsbomb/open-data). If you don't
-have a local copy of the data, don't worry - that's what the requests library was for.
+Michael's original MLS data is [here](https://github.com/mimburgi/SoccerStuff/blob/master/ASAclusters/2019summary.txt). It has 19 features for each player and there are a total of 275 players. Most of those (16), we can pull directly from the public sites (fbref and understat). The other three are where we differ from his data. They are:
 
-## Basic Overview
+* xP% - expected Pass %
+* % of possession chains in which player participated with a shot
+* % of possession chains in which player participated with a key pass
 
+Since those three features are not available publicly on fbref, I had to work those out myself. While the latter two are straighforward enough, for the xP% value, I used a simple logistic regression classifer and trained it on the spatial coordinates of passes plus some other features encoding the game state(time, score, speed of play).
 
-What really is a passmap?
+The resulting dataframe after merging the various data sources is [here]() and this is our starting point.
 
-![Sample](../images/11tegen11.png)
+## Preprocessing
 
+Most of our preprocessing steps are outlined in the original post. We need to 'per 90'-ify our count stats, set a minimum minutes played threshold, and then scale all count stats(the rate stats are already scaled) to the (0,1) range. The re-scaling part is important since we plan to run t-SNE next on the data.  
 
-This is the popular version by @[11tegen11](https://twitter.com/11tegen11). At first glance, it might seem like there's a lot going on here (and that kinda threw me off a bit the first time I saw these in the wild) but
-let's take a closer look at what information it's supposed to convey to us.
-
-The two most important things of note are - the ***average position of the player***,
-and the ***number of passes*** between any two given players.
-
-Apart from that, we also have the **players' names**, and the players' dot sizes (which indicate the **total number of
-passes played by the player**).
-Finally we have some aesthetic details - the watermark, team's logo, match details.
-For the purpose of this post, we are going to ignore the watermark and the logo of the team.
-
-## Getting Started
-
-
-### Imports
-
- ```python
-
-import json
+```python
 import pandas as pd
-import matplotlib.pyplot as plt
-import requests
-from pandas import json_normalize
 import numpy as np
-from pitch import Pitch ##a helper function to quickly give us a pitch
-import warnings
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.preprocessing import MinMaxScaler
 
-from pandas.core.common import SettingWithCopyWarning
-warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
-
- ```
-
-Statsbomb has a unique `match_id` for every match in the open-data repository. The match we're going to look at is the FIFA WC 2018 Final
-between France and Croatia. The id for it is **"8658"** and let's look at **Croatia** to start with (which was the away side in the match).
-Let's set some variables to that data and also grab our figure and axis instances from matplotlib.
-
-```python
-
-match_id = "8658"
-side = "away"
-color = "blue"
-min_pass_count = 2 ##minimum number of passes for a link to be plotted
-
-fig, ax = plt.subplots()
-ax = Pitch(ax)
+np.random.seed(42)
 
 ```
 
-The next step would be to write a Class called `Player`. Why do that? Well, if you think about it, a player is basically an object
-with certain **attributes** - name, a unique player_id, and on whom we can run some **methods** -
-like calculate the total number of passes attempted completed, or their average position on the pitch. That's pretty much the
-textbook definition of an object!
+```python
+scaler = MinMaxScaler()
+
+df = pd.read_csv("../data/data.csv")
+
+df = df[["Player", "Pos", "90s", "Standard_Sh", "Expected_npxG", "KP", "xA", "xGChain", "xGBuildup", 
+         "Total_Cmp%", "Pass Types_Crs", "Dribbles_Succ", "Miscon", "Receiving_Targ",
+         "Total_PrgDist", "CrsPA", "Prog", "Total_Cmp", "Short_Cmp", "Medium_Cmp", "Long_Cmp", "xPassing%", "shot_chain%", "key_pass_chain%"]]
+df.columns = ['player_name', 'position', '90s', 'shots_n', 'npxG', 'key_passes_n', 'xA', 'xG_chain', 'xG_buildup', 'pass_cmp_rate',
+              'crosses_n', 'succ_dribbles_n', 'miscontrols_n', 'receiving_target_n', 'progressive_distance', 'crosses_pen_area_n',
+              'progressive_passes_n', 'succ_passes_n', 'succ_short_passes_n', 'succ_medium_passes_n', 'succ_long_passes_n', 'x_pass_cmp_rate',
+             'shot_chain_rate', 'kp_chain_rate']
+
+
+df.fillna(0, inplace=True)
+#df["succ_short_passes_n"] = df['succ_short_passes_n'] + df['succ_medium_passes_n']
+
+df["short_ratio"] = df["succ_short_passes_n"]/df["succ_passes_n"]
+df["long_ratio"] = df["succ_long_passes_n"]/df["succ_passes_n"]
+
+df = df[(df["90s"]>13) & (df["position"]!="GK")].reset_index(drop=True) ##only outfield players with 1100 minutes
+
+##per 90ify everything all counting metrics
+df[['shots_n', 'npxG', 'key_passes_n', 'xA', 'xG_chain', 'xG_buildup', 'crosses_n', 'succ_dribbles_n', 'miscontrols_n',
+    'receiving_target_n', 'progressive_distance', 'crosses_pen_area_n', 'progressive_passes_n']] = df[['shots_n', 'npxG', 'key_passes_n', 'xA', 'xG_chain', 'xG_buildup', 'crosses_n', 'succ_dribbles_n', 'miscontrols_n',
+    'receiving_target_n', 'progressive_distance', 'crosses_pen_area_n', 'progressive_passes_n']].div(df['90s'], axis=0)
+
+###vertical passing distance + last 3 not found easily enough so we'll drop those features
+
+##drop useless columns
+df.drop(["succ_passes_n", "succ_short_passes_n", "succ_long_passes_n", "succ_medium_passes_n"], axis=1, inplace=True)
+
+##store away player details and then keep only features in df
+
+features = ['shots_n', 'npxG', 'key_passes_n', 'xA', 'xG_chain', 'xG_buildup', 'crosses_n',
+            'succ_dribbles_n', 'miscontrols_n', 'receiving_target_n', 'progressive_distance',
+            'crosses_pen_area_n', 'progressive_passes_n', 'short_ratio', 'long_ratio',
+            'pass_cmp_rate', 'x_pass_cmp_rate', 'shot_chain_rate', 'kp_chain_rate']
+
+
+df[features] = pd.DataFrame(scaler.fit_transform(df[features].values), columns=features, index=df.index)
+X = df[features].values
+
+N_FEATURES = len(features)
+N_CLUSTERS = 11
+N_DIMENSIONS_TSNE = 2
+N_INTERPRETABLE_DIMS = 8
+
+print(f"Number of features: {N_FEATURES}")
+```
+*Number of features: 19*
+
+## Dimension Reduction and Clustering
+
+The article isn't 100% clear on this but the first step we need to perform before clustering the data is to reduce the dimensions - from 19 to 2. We'll use t-SNE to do this. The original article points to [this guide](https://www.americansocceranalysis.com/home/2018/11/26/tsne) from the dynamic duo of Eliot and Cheuk to learn more about t-SNE and its applications in football stuff and I really couldn't do better than that.
 
 ```python
+from sklearn.manifold import TSNE
 
-class Player:
-    def __init__(self, player, df):
-        self.id = player["player"]["id"]
-        self.name = player["player"]["name"]
-        self.average_position(df)
+Xs_embedded = TSNE(n_components=N_DIMENSIONS_TSNE).fit_transform(X)
+```
+```python
+import matplotlib.pyplot as plt
 
-    def average_position(self, df):
+with plt.style.context('ggplot'):
+    
+    fig, ax = plt.subplots(figsize=(12,8))
+    colors = df['position'].map({'DF': 'red', 
+                             'MFDF': 'green', 
+                             'MF': 'purple', 
+                             'MFFW': 'pink', 
+                             'FW': 'blue', 
+                             'FWMF': 'violet',
+                             'DFMF': 'orange', 
+                             'DFFW': 'gold'})
 
-        player_pass_df = df.query("(type_name == 'Pass') & (pass_type_name not in ['Free Kick', 'Corner', 'Throw-in', 'Kick Off']) & (player_id == @self.id) & (pass_outcome_name not in ['Unknown','Out','Pass Offside','Injury Clearance', 'Incomplete'])")
-        self.x, self.y = np.mean(player_pass_df['location'].tolist(), axis=0)
-
-        self.n_passes_completed = len(player_pass_df)
+    ax.scatter(x=Xs_embedded[:, 0], y=Xs_embedded[:, 1], c=colors)
 
 ```
 
-## Loading the data
+[insert image]
 
-We can either load the data from the Github [repository](https://github.com/statsbomb/open-data) online or from your local copy of it. Let's write a function to
-take care of both cases. We're going to tell the function which match (**match_id**), and how to get the data (**remote/local**). It's gonna return
-the data (which is going to be in JSON format) and also the data formatted to a Pandas dataframe.
+As we can see, the clusters are looking pretty, well, cluster-y. That's a good sign. The two separate groups of defenders (in red) are probably, fullbacks and centrebacks (it's a shame fbref doesn't differentiate between the two). Feel free to plot the names of the players to check what the other clusters roughly are. 
+
+For clustering our t-SNE reduced player attributes, we'll use a hierarchical clustering method. From the original article, Michael settles on 11 clusters. That gives us enough scope for at least 2 player roles for each position on paper - forwards, creative mids/wide forwards, deeper midfielders, centre-backs, and fullbacks(theoretically, at least). It is also a nice number to form a playing 11 at the end consisting of players from the different clusters with the objective being to create a balanced team across the board. 
+
+```python
+import scipy.cluster.hierarchy as shc
+
+with plt.style.context('ggplot'):
+    fig, ax = plt.subplots(figsize=(12, 8))
+    ax.title.set(text="Player Hierarchical Clustering")
+    dend = shc.dendrogram(shc.linkage(Xs_embedded, method='ward'))
+```
+
+[insert image]
+
+*11 clusters means a cut-off right around here - the vertical dotted line.*
+
+```python
+### Clustering and generating labels
+model = AgglomerativeClustering(distance_threshold=None, n_clusters=N_CLUSTERS)
+labels = model.fit_predict(Xs_embedded)
+df['label'] = labels
+```
+After running the clustering algorithm and saving the labels, we'll try to replot the same scatter from before but this time using the generated labels from our agglomerative function. If we're seeing clearer clusters of players, then we're definitely on the right track. 
+
+```python
+with plt.style.context('ggplot'):
+    
+    fig, ax = plt.subplots(figsize=(12,8))
+    ax.scatter(x=Xs_embedded[:, 0], y=Xs_embedded[:, 1], c=labels, cmap='gist_ncar')
+```
+
+[insert image]
+
+Success!
+
+The final step is to interpret the clusters generated.
+
+## Interpreting the Clusters
+
+### What didn't work
+
+"*...The simplest, and most thorough, way to interpret these clusters is to examine the distribution of each original statistic within the cluster....
+...To help, we can go back to a dimension reduction method I skimmed over earlier: PCA. PCA reductions give us more interpretable dimensions...
+...A standard PCA yields dimensions that are not correlated with each other, but in our case we expect that many dimensions are correlated with each other - for example, dimensions that define a backfield player are probably inversely correlated with dimensions that define a striker. By applying a promax rotation to the dimensions, we end up with clusters that are allowed to be correlated with each other and yield 8 dimensions that we’ll use to interpret the clusters...*"
+
+Sounds easy-peasy but this step was actually deceptively tricky. For one, there's no helper module in python for performing a PCA with promax rotation. And I'm not even remotely good enough at linear algbera to try and perform the rotation by hand using numpy. 
+
+I tried two ways to work around that. The first one was to try a Factor Analysis with promax rotation instead of PCA with promax. 
+
+```python
+from factor_analyzer import FactorAnalyzer
+fa = FactorAnalyzer(rotation='promax', n_factors = N_INTERPRETABLE_DIMS)
+
+fa.fit(X)
+
+int_Xs = fa.fit_transform(X)
+```
+
+The second one was to try a PCA decomp but with varimax rotation. 
+
+```python
+from advanced_pca import CustomPCA
+vpca = CustomPCA(n_components=8, rotation='varimax').fit(X)
+```
+
+Both failed for pretty much the same reason. While the loadings and the dimensions they yielded didn't look entirely unreasonable, they actually were pretty meaningless(or at least not producing the dimensions that we wanted). For example, check out the loadings from the Varimax PCA below.
+
+[insert image]
+
+If you don't know what you're looking at, try to look at each row and see which features are hottest/coldest for them. For example, the first row is hottest at key_passes_n, xA, crosses_n, and kp_chain_rate. We can assume this dimension is probably related to **Creating**. Similarly the next one works out to be **Shooting** (high in shots_n, npxG, shot_chain_rate). And so on. 
+
+Since neither of the methods are really the same as Michael's, we are almost certainly not going to get the same eight dimensions. That however was not even the biggest problem. When we plot the radars - comparing every cluster to the league average, we soon realize the numbers don't really mean anything. For instance, check out cluster label 4. 
+
+```python
+print(df.query("label==4")['player_name'].head(5))
+```
+*12      Jack Grealish
+ 51    Kevin De Bruyne
+ 71     James Maddison
+ 78            Willian
+ 93        Emi Buendía*
+
+These players are clearly from the creative midfielders/playmakers cluster. We can safely assume they're probably higher at creating chances than the average league player. However the results of the varimax PCA are telling a different story. 
+
+```python
+vxs = int_Xs
+vxs = scaler.fit_transform(vxs)
+vxs.shape
+
+vcols = ['Creating', 'Shooting', 'Ball retention', 'Build-up', 'Verticality',  'Dribbling', 'Crossing', 'Involvement']
+
+results = pd.DataFrame(vxs, columns = vcols)
+results['label'] = df['label']
+
+def custom_radar(label, color, ax=None, average=True):
+    with plt.style.context('ggplot'):
+        ##cleaning and creating radar layout
+        if ax is None:
+            fig, ax = plt.subplots(subplot_kw={'projection':'polar'}, figsize=(8,8))    
+        else:
+            fig, ax = ax.get_figure(), ax
+        
+        thetas = list(np.linspace(0, 2*np.pi, 8, endpoint=False))
+        for i in thetas:
+            for j in np.linspace(0,1,6, endpoint=True):
+                ax.plot([i, i+np.pi/4], [j, j], linestyle='-', color='silver', alpha=.9, lw=1.1, zorder=2)
+        ax.grid(b=False, axis='y')
+        ax.grid(axis='x', color='silver')
+        ax.set_fc('white')
+        ax.set(ylim=(0, 1), yticklabels='')
+
+        ax.set_xticks(thetas)
+        ax.set_xticklabels(vcols)
+        ax.spines['polar'].set_visible(False)
+        ax.title.set(text='Cluster Radars')
+
+        ##plotting
+        pdf = results.query("label==@label")
+        heights = pdf[vcols].mean()
+        ax.fill(thetas, heights, color=color, alpha=.2, zorder=10)
+        ax.plot(thetas+[thetas[0]], list(heights)+[heights[0]], color=color, label= f"Cluster {label} average", zorder=10, linewidth=3) ##
+        
+        if average:
+            league_average_heights = results[vcols].mean()
+            ax.fill(thetas, league_average_heights, color='k', ec='k', alpha=.15, zorder=5)
+            ax.plot(thetas+[thetas[0]], list(league_average_heights)+[league_average_heights[0]], color='k', label="League average", 
+                    zorder=5, linewidth=2, linestyle='-.')
+
+        ax.legend(bbox_to_anchor=(0.85, 0.95))
+    return ax
+ax = custom_radar(label=i, color='red')
+``` 
+
+[insert image]
+
+Wait, it's telling us that creators are shooting *more* and actually creating *less* than the average PL player. You can try this out with the other clusters too, the numbers don't hold up any better.
+
+### What did work
+
+In the end, I had to compromise a little and use R for performing the decomposition and getting our desired dimensions. Using rpy2, I called the necessary R functions from within my python session. The following code section wraps all that in a single function. 
 
 ```python
 
-def load_file(match_id, getter="remote", path = None):
-    """ """
+import rpy2.robjects as ro
+import rpy2.robjects.numpy2ri
+from rpy2.robjects.packages import importr
 
-    if getter == "local":
-        with open(f"{path}/{match_id}.json", "r", encoding="utf-8") as f:
-            match_dict = json.load(f)
-            df = json_normalize(match_dict, sep="_")
-            df = df.query("location == location")
-            df[['x','y']] = pd.DataFrame(df.location.values.tolist(), index= df.index)
-            df['y'] = 80 - df['y'] ##Reversing the y-axis co-ordinates because Statsbomb use this weird co-ordinate system
-            df['location'] = df[['x', 'y']].apply(list, axis=1)
+rpy2.robjects.numpy2ri.activate()
 
-        return match_dict, df
+nr,nc = X.shape
+Xr = ro.r.matrix(X, nrow=nr, ncol=nc)
 
-    elif getter == "remote":
-        resp = requests.get(f"https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/{match_id}.json")
-
-        match_dict = json.loads(resp.text)
-        df = json_normalize(match_dict, sep="_")
-        df = df.query("location == location")
-        df[['x','y']] = pd.DataFrame(df.location.values.tolist(), index= df.index)
-        df['y'] = 80 - df['y'] ##Reversing the y-axis co-ordinates because Statsbomb use this weird co-ordinate system
-        df['location'] = df[['x', 'y']].apply(list, axis=1)
-
-        return match_dict, df
-
+ro.r.assign("Xr", Xr)
 ```
-
-I know for a fact that every match JSON file contains the lineups for both teams as the first two dictionaries in our list.
-Let's go ahead and look at it ourselves.
-
 ```python
-print(match_dict[0])
+psych = importr('psych')
+dplyr = importr('dplyr')
 
-"""{'id': '47638847-fd43-4656-b49c-cff64e5cfc0a', 'index': 1, 'period': 1, 'timestamp': '00:00:00.000', 'minute': 0,
- 'second': 0, 'type': {'id': 35, 'name': 'Starting XI'}, 'possession': 1,'possession_team': {'id': 771, 'name': 'France'},
- 'play_pattern': {'id': 1, 'name': 'Regular Play'}, 'team': {'id': 771, 'name': 'France'}, 'duration': 0.0,
-  'tactics': {'formation': 442, 'lineup':
-  [{'player': {'id': 3099, 'name': 'Hugo Lloris'}, 'position': {'id': 1, 'name': 'Goalkeeper'}, 'jersey_number': 1},
-  {'player': {'id': 5476, 'name': 'Benjamin Pavard'}, 'position': {'id': 2, 'name': 'Right Back'}, 'jersey_number': 2},
-  {'player': {'id': 5485, 'name': 'Raphaël Varane'}, 'position': {'id': 3, 'name': 'Right Center Back'}, 'jersey_number': 4},
-  {'player': {'id': 5492, 'name': 'Samuel Yves Umtiti'}, 'position': {'id': 5, 'name': 'Left Center Back'}, 'jersey_number': 5},
-   {'player': {'id': 5484, 'name': 'Lucas Hernández Pi'}, 'position': {'id': 6, 'name': 'Left Back'}, 'jersey_number': 21},
-   {'player': {'id': 20004, 'name': 'Paul Pogba'}, 'position': {'id': 9, 'name': 'Right Defensive Midfield'}, 'jersey_number': 6},
-   {'player': {'id': 3961, 'name': 'N"Golo Kanté'}, 'position': {'id': 11, 'name': 'Left Defensive Midfield'}, 'jersey_number': 13},
-   {'player': {'id': 3009, 'name': 'Kylian Mbappé Lottin'}, 'position': {'id': 12, 'name': 'Right Midfield'}, 'jersey_number': 10},
-   {'player': {'id': 4375, 'name': 'Blaise Matuidi'}, 'position': {'id': 16, 'name': 'Left Midfield'}, 'jersey_number': 14},
-   {'player': {'id': 5487, 'name': 'Antoine Griezmann'}, 'position': {'id': 22, 'name': 'Right Center Forward'}, 'jersey_number': 7},
-   {'player': {'id': 3604, 'name': 'Olivier Giroud'}, 'position': {'id': 24, 'name': 'Left Center Forward'}, 'jersey_number': 9}]}}"""
+fit = psych.principal(Xr, nfactors=8, rotate='promax')
+
+objects_dict = dict(zip(fit.names, list(fit)))
+loadings = np.array(objects_dict['loadings'])
+plt.imshow(loadings)
+
+array = np.array(objects_dict['scores'])
+
+itp_dims = ['Shooting', 'Creating', 'Build-up', 'Ball retention', 'Verticality', 'Dribbling', 'Crossing', 'Involvement'] ##subjective interpretable metrics
+
+results = pd.DataFrame()
+results[['player_name', 'label']] = df[['player_name', 'label']]
+
+results[itp_dims] = array
+results[itp_dims] = pd.DataFrame(scaler.fit_transform(results[itp_dims].values), columns=itp_dims, index=results.index) ##scale values to 0,1
+
+print(results.head())
 ```
+|    | player_name       |   label |   Shooting |   Creating |   Build-up |   Ball retention |   Verticality |   Dribbling |   Crossing |   Involvement |
+|---:|:------------------|--------:|-----------:|-----------:|-----------:|-----------------:|--------------:|------------:|-----------:|--------------:|
+|  0 | Virgil van Dijk   |       6 |   0.164354 |  0.0528004 |  0.617414  |         0.865034 |      0.992581 |    0        |   0.221731 |      0.465618 |
+|  1 | George Baldock    |       5 |   0.149394 |  0.224806  |  0.229825  |         0.434429 |      0.33011  |    0.267381 |   0.63192  |      0.384424 |
+|  2 | Harry Maguire     |       6 |   0.209166 |  0.0659856 |  0.400448  |         0.85739  |      0.863615 |    0.087393 |   0.184418 |      0.4679   |
+|  3 | James Ward-Prowse |       9 |   0.234736 |  0.443856  |  0.302112  |         0.308156 |      0.538874 |    0.122686 |   0.253279 |      0.353044 |
+|  4 | James Tarkowski   |       3 |   0.219403 |  0.113044  |  0.0493091 |         0.466045 |      0.879612 |    0.123818 |   0.141322 |      0.499904 |
+​
 
-This is important because we need the **names**, and **ids** of the players who started the match. So let's go ahead
-and write a small function to get all that data from the dictionary.
+### Defining Roles
+
+After we get our interpretable dimensions, we can finally compare players along those dimensions and investigate the inter-cluster differences more minutely. This ultimately helps us assign roles to those labels that we can understand and communicate. This step mostly involves plotting the clusters a bunch of times - especially for players from the same on-paper position. For example, if we got two clusters which are full of mostly centre-backs, we can plot the radars for them to check what exactly is the difference. Here are the results that I got: 
 
 ```python
 
-def get_starters(match_dict, side="home"):
-    """ """
-    lineups = match_dict[0]["tactics"]["lineup"] if side == "home" else match_dict[1]["tactics"]["lineup"]
-    return lineups
-
 ```
 
-We're almost set with all the functions and classes we're gonna need to define. Now, we're going to need to call them. But before that,
-we're quickly going to pull the names of both the teams in a dictionary. That's gonna be helpful later when we're adding text to
-the viz.
+For example, plotting the average score of all players in our two centre-back clusters - , we get this:
 
-```python
-side_dict = {"home": match_dict[0]["team"]["name"],
-             "away": match_dict[1]["team"]["name"] }
+The ramifications of these differences in context of roles is explained very well in the original. Here are the comparison radars for a few other similar clusters.
 
-print(side_dict)
+## Limitation and possible improvements
 
-## {'home': 'France', 'away': 'Croatia'}
-```
+Most of the model limitations are mentioned in the, you guessed it, original post. For example, we have no data on defensive activity (though we do know defensive activity is influenced heavily by opportunity). Adding possession adjusted versions of tackles, interceptions, fouls and aerial duels will certainly help us distinguish players who are stylistically different. 
 
-Let's go ahead and call our functions to get the data and the lineups.
+On the topic of data and features, another issue is the absense of spatial data. That would tell us more about *where* on the field do players play. We could also try converting the raw number metrics into team ratios - for example, instead of looking at just number of shots by a player, look at ratio of shots taken by the player to the entire team's. 
 
-```python
-match_dict, df = load_file(match_id, getter="remote")
-lineups = get_starters(match_dict, side=side)
+The second most important limitation is the question about "*high performance within a role vs. misclassification of the player*". For example, a fullback inverting into midfield (looking at you, Kyle Walker) and in general doing more midfielder-y stuff (being more involved in build-up, crossing less) is going to be classified as a midfielder. The best way to do this would be perhaps a more probabilistic approach to clustering, i.e., predicting that the probability of Walker being a midfielder is 0.45, full-back is 0.5 etc. 
 
-```
-Now we are going to create `Player` objects out of all the players in our lineups list and put them all together in a dictionary.
+The third biggest limitation is right now there's no regulation on the sizes of the clusters. It's also possible that setting a lower and upper cap on cluster sizes can also indirectly chip away at the misclassification problem from above. 
 
-```python
-player_objs_dict = {}
-starters = []
-for player in lineups:
-    starters.append(player["player"]["name"]) ##To remove all substitutes from our final grouped_df
-    p = Player(player, df) ##Calling the Player class
-    player_objs_dict.update({player["player"]["name"]: p}) ##For lookup during plotting the grouped_df
+My final idea is to simply try a bunch of other dimension reduction algorithms(UMAP, variational autoencoders, or even good old PCA) or tweaking the complexity hyperparameter and/or increasing the number of components for t-SNE). 
 
-```
-## Data-cleaning
-
-Now we clean up the events dataframe a little.
-The first step is to get only the events which are **only open-play passes and only passes by the side we've chosen, and only those that are successful.**
-We chain all these filters together using the query method.
-
-The next part is to group these passes together based on the player who passed the ball and the one who received the ball.
-For example, if Modric passed to Brozovic four times in the entire match, we are gonna have four separate rows in `total_pass_df`
-for it. But when we apply the groupby method, that's compressed into a single row with the new column count reflecting the value four.
-
-The final step is to get only the players who were in the starters list and the minimum passes played between them is greater
-than or equal to a certain value - I'm gonna go with 2. This is initialised right at the beginning :point_up: .
-
-```python
-total_pass_df = df.query(f"(type_name == 'Pass') & (pass_type_name not in ['Free Kick', 'Corner', 'Throw-in', 'Kick Off']) &"\
-                                 f"(team_name == '{side_dict[side]}') & (pass_outcome_name not in ['Unknown','Out','Pass Offside','Injury Clearance', 'Incomplete'])")
-total_pass_df = total_pass_df.groupby(["player_name", "pass_recipient_name"]).size().reset_index(name="count")
-total_pass_df = total_pass_df.query(" (player_name == @starters) & (pass_recipient_name == @starters) & (count>=@min_pass_count) ")
-```
-
-Here's our final dataframe -
-
-```python
-
-print(total_pass_df)
-
-#     player_name pass_recipient_name  count
-#      Ante Rebić        Ivan Perišić      2
-#      Ante Rebić       Šime Vrsaljko      2
-# Danijel Subašić        Dejan Lovren      4
-# Danijel Subašić        Domagoj Vida      3
-#    Dejan Lovren     Danijel Subašić      3
-
-```
-
-## Visualization
-
-So far so good. Now's the time to visualise our results. We're going to iterate over our dataframe, grab the players who did the
-passing and receiving, grab the player_object of those two players from our `player_objs` dictionary and then grab their names,
-average positions, and their total passes.
-
-You could go ahead and plot them right now using `ax.plot` and they'd look like this.
-
-![Only_Lines](../images/only_lines.png)
-
-There's room for some improvement though. We are not able to tell, **between Player A and Player B, who passed more to whom**.
-If Modric passes to Brozovic ten times in a match and Brozovic only returns the favour
-once, that information is lost to us because there's just one thick line between both of them.
-For this reason, it might make sense to use arrows to denote direction but also make sure they're not overlapping.
-
-To do that, we use some if-else logic. We pick up a unique identifier for the players - the `player_id` will do just fine.
-Then we can compare the `player_id` - if `player_id` of Player A is greater than Player B, shift the arrow from A to B a little to
-the left. If B is greater than A, shift the arrow a little to the right. Basically, as seen in the figure below -
-
-![Comparison](../images/demo_.png)
+Hopefully, this post was helpful in some manner! For any kind of feedback, feel free to reach out to me on Twitter.
 
 
-**Note**: *We can also apply the same logic to players who are on the same line horizontally - the only difference would be that instead of
-shifting the arrow left and right, we'll shift them a little up and a little down.*
 
 
-```python
-arrow_shift = 1 ##Units by which the arrow moves from its original position
-shrink_val = 1.5 ##Units by which the arrow is shortened from the end_points
-
-##Visualising the passmap
-
-for row in total_pass_df.itertuples():
-
-    link = row[3] ## for the arrow-width and the alpha
-    passer = player_objs_dict[row[1]]
-    receiver = player_objs_dict[row[2]]
-
-    alpha = link/15
-    if alpha >1:
-        alpha=1
-
-    if abs( receiver.x - passer.x) > abs(receiver.y - passer.y):
-
-        if receiver.id > passer.id:
-            ax.annotate("", xy=(receiver.x, receiver.y + arrow_shift), xytext=(passer.x, passer.y + arrow_shift),
-                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw = link*0.12, alpha=alpha))
-
-        elif passer.id > receiver.id:
-            ax.annotate("", xy=(receiver.x, receiver.y - arrow_shift), xytext=(passer.x, passer.y - arrow_shift),
-                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.12, alpha=alpha))
-
-    elif abs(receiver.x - passer.x) <= abs(receiver.y - passer.y):
-
-        if receiver.id > passer.id:
-            ax.annotate("", xy=(receiver.x + arrow_shift, receiver.y), xytext=(passer.x + arrow_shift, passer.y),
-                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.12, alpha=alpha))
-
-        elif passer.id > receiver.id:
-            ax.annotate("", xy=(receiver.x - arrow_shift, receiver.y), xytext=(passer.x - arrow_shift, passer.y),
-                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.12, alpha=alpha))
 
 
-```
-The final step of our visualisation is to add scatter points to the players' locations and also annotate them with their last names.
-We can then add some extra heading and sub-heading information. Here's our final result after all that's taken care of.
-
-```python
-for name, player in player_objs_dict.items():
-
-    ax.scatter(player.x, player.y, s=player.n_passes_completed*1.3, color=color, zorder = 4)
-    ax.text(player.x, player.y+2 if player.y >40 else player.y -2, s=player.name.split(" ")[-1], rotation=270, va="top" if player.y<40 else "bottom", size=6.5, fontweight="book", zorder=7, color=color)
-
-ax.text(124, 80, f"{side_dict[side]}", size=12, fontweight="demibold", rotation=270, color=color, va="top")
-ax.text(122, 80, f"{side_dict['home']} vs {side_dict['away']}", size=8, fontweight="demibold", rotation = 270, va="top")
-
-fig.tight_layout()
-```
-
-![Final](../images/final.png)
-
-Pretty neat, huh? There's still room for a lot of improvements/experimenting. We could try some network analysis on the dataframe
-and find out the centrality measures - like betweenness centrality to find out the most important player(s).
-Passmaps also have a few limitations: the affinity for average position may lead to pretty wildly inaccurate results when players change positions a lot
-in a given match.
-
-I hope this was a fruitful/fun python exercise. For any sort of feedback, feel free to reach out to me on Twitter!
-
-__________________________
-
-**Note**: *Since I first published this post, I realized I had made a stupid error initially. I hadn't noticed that
-Statsbomb use the reversed co-ordinate system for the y-axis. Hence all players of the right ended up on the left and vice-versa.
-Full credit to [Soumyajit Bose](https://twitter.com/MessiBose) for catching that. I've fixed the code to take care of that.*
 
 
 
