@@ -183,11 +183,13 @@ Success! The final step is to explore the clusters and define our roles.
 ## Interpreting the Clusters
 
 
-### What didn't work
+### What did not work
 
-"*...The simplest, and most thorough, way to interpret these clusters is to examine the distribution of each original statistic within the cluster....
-...To help, we can go back to a dimension reduction method I skimmed over earlier: PCA. PCA reductions give us more interpretable dimensions...
-...A standard PCA yields dimensions that are not correlated with each other, but in our case we expect that many dimensions are correlated with each other - for example, dimensions that define a backfield player are probably inversely correlated with dimensions that define a striker. By applying a promax rotation to the dimensions, we end up with clusters that are allowed to be correlated with each other and yield 8 dimensions that we’ll use to interpret the clusters...*"
+"*...The simplest, and most thorough, way to interpret these clusters is to examine the distribution of each original statistic within the cluster....*
+
+*...To help, we can go back to a dimension reduction method I skimmed over earlier: PCA. PCA reductions give us more interpretable dimensions...*
+
+*...A standard PCA yields dimensions that are not correlated with each other, but in our case we expect that many dimensions are correlated with each other - for example, dimensions that define a backfield player are probably inversely correlated with dimensions that define a striker. By applying a promax rotation to the dimensions, we end up with clusters that are allowed to be correlated with each other and yield 8 dimensions that we’ll use to interpret the clusters...*"
 
 All that sounds fairly easy but this step was actually deceptively tricky. For one, there's no helper module in python for performing a PCA with promax rotation. And I'm not even remotely good enough at linear algebra to try and perform the rotation by hand using numpy or something. 
 
@@ -416,12 +418,14 @@ Most of the model limitations are mentioned in the, you guessed it, original pos
 On the topic of data and features, another issue is the absence of spatial data. That would tell us more about *where* on the field do players play. We could also try converting the raw number metrics into team ratios - for example, instead of looking at just number of shots by a player, look at ratio of shots taken by the player to the entire team's. 
 
 
-The second most important limitation is the question about "*high performance within a role vs. misclassification of the player*". For example, a fullback inverting into midfield (looking at you, Kyle Walker) and in general doing more midfielder-y stuff (being more involved in build-up, crossing less) is going to be classified as a midfielder. The best way to go about fixing this would perhaps be a more probabilistic approach to clustering, i.e., predicting that the probability of Walker being a midfielder is 0.45, full-back is 0.5 etc.
+The **second** most important limitation is the question about "*high performance within a role vs. misclassification of the player*". For example, a fullback inverting into midfield (looking at you, Kyle Walker) and in general doing more midfielder-y stuff (being more involved in build-up, crossing less) is going to be classified as a midfielder. The best way to go about fixing this would perhaps be a more probabilistic approach to clustering, i.e., predicting that the probability of Walker being a midfielder is 0.45, full-back is 0.5 etc.
 
 
-The third biggest limitation of this method is that there's no regulation on the sizes of the clusters. This combined with the absence of a great evaluation method can (potentially) really mess up your clusters - especially if the features are not carefully chosen too (I can't tell you the number of times I got a cluster full of only Manchester City players after I put in the wrong input). As it is, if you call `np.bincount` on the `labels`, you'll notice that my largest cluster is twice as big as the smallest. Fixing this might also indirectly chip away at the misclassification problem; setting a lower and upper cap on cluster sizes might lead to tighter clusters.
+The **third** biggest limitation of this method is that there's no regulation on the sizes of the clusters. This combined with the absence of a great evaluation method can (potentially) really mess up your clusters - especially if the features are not carefully chosen too (I can't tell you the number of times I got a cluster full of only Manchester City players after I put in the wrong input). As it is, if you call `np.bincount` on the `labels`, you'll notice that my largest cluster is twice as big as the smallest. Fixing this might also indirectly chip away at the misclassification problem; setting a lower and upper cap on cluster sizes might lead to tighter clusters.
 
 My final idea for improvements is to simply try a bunch of other dimension reduction algorithms(UMAP, variational auto-encoders, or even good old PCA), or tweaking the complexity hyper-parameter, and/or increasing the number of components for t-SNE reduction). The last part I did try but the improvement wasn't all that much but with the added downside of it being no longer easy enough to create those scatter plots so I decided to leave it out. 
+
+_______
 
 Hopefully, this post was helpful in some manner! I had a lot of fun working through it. Huge thanks to Michael himself for allowing me to do this plus always patiently helping me with all the questions I had. Also shout out to Sushruta and Maram for reading an earlier version of this draft. :heart:
 
