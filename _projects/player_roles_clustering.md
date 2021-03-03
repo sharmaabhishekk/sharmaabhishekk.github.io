@@ -8,47 +8,46 @@ description: Re-implementing ASA's Player Roles Clustering Method in Python
 
 # Re-implementing Player Roles Clustering in Python
 
-With so much public work happening in the football analytics sphere in the last year, there have been tons of new and interesting ideas popping up. With that, there have also been a lot of newcomers into the field. One of the most popular questions is "*How to get started with football analytics?*". While there are lots of tutorials and guides, I personally feel like there's a lot of educational value in simply re-implementing others' ideas. That is, you see a model/methodology in another language or framework and you try to flesh it out in code in *your* preferred language. Aside from how it is a learning experience for *you* yourself, you're also contributing to the open-source football analytics community. Having mulitple methods to do the same thing definitely helps to expand the original idea's reach.
 
-To that end, I have decided to implement this excellent blogpost from [Michael Imburgio](http://michaelimburgio.com) -  ["DEFINING ROLES: HOW EVERY PLAYER CONTRIBUTES TO GOALS"](https://www.americansocceranalysis.com/home/2020/8/3/defining-roles-how-every-player-contributes-to-goals). In the article, Michael tries to move past the on-paper formations for players and instead, cluster them based on the roles they're performing on the pitch. Personally, this is one of the best written pieces on clustering players. If you haven't read it already, you should because a) it's really cool, and b) I'll be referencing it heavily henceforth. 
+With so much public work happening in the football analytics sphere in the last year, there have been tons of new and interesting ideas popping up. With that, there have also been a lot of newcomers into the field. One of the most popular questions is "**How to get started with football analytics?**". While there are lots of tutorials and guides, I personally feel like there's a lot of educational value in simply re-implementing others' ideas. That is, you see a model/methodology in another language or framework and you try to flesh it out in code in *your* preferred language. Aside from how it is a learning experience for *you* yourself, you're also contributing to the open-source football analytics community. Having multiple methods to do the same thing definitely helps to expand the original idea's reach.
 
-Michael has also made the original R code and the MLS data(!) available [here](https://github.com/mimburgi/SoccerStuff/tree/master/ASAclusters). We'll try to work this out in Python instead of R and I've also changed the dataset; instead of the MLS, we'll use the Premier League 2019/20 dataset. This is mostly because I am more familiar with the PL than the MLS. 
+To that end, I have decided to implement this excellent blog from [Michael Imburgio](http://michaelimburgio.com) -  ["**Defining Roles: How Every Player Contributes to Goals**"](https://www.americansocceranalysis.com/home/2020/8/3/defining-roles-how-every-player-contributes-to-goals). In the article, Michael tries to move past the on-paper formations for players and instead, cluster them based on the roles they're performing on the pitch. Personally, this is one of the best written pieces on clustering players. If you haven't read it already, you should because a) it's really cool, and b) I'll be referencing it heavily henceforth. 
+
+Michael has also made the original R code and the MLS data(!) available [here](https://github.com/mimburgi/SoccerStuff/tree/master/ASAclusters). We'll try to work this out in Python instead of R and I've also changed the dataset; instead of the MLS, we'll use the Premier League 2019/20 dataset (mostly because I am more familiar with the PL than the MLS).  
 
 My objective for this post is pretty simple: to try and stay as close to the original idea as possible and hopefully being able to replicate their results. 
 
-(If you're just interested in just the code for this post, the github link's [here]())
+(If you're just interested in just the code for this post, the github link's [here](https://github.com/sharmaabhishekk/random_stuff/blob/master/player_roles_cluster_impl/final_analysis.ipynb))
 
-## Pre-requisites
+## Prerequisites
 
 I'm assuming you already have python and R installed (yeah I know I said python only but we'll need R for a teeny tiny part). In addition, we will need these python libraries:
 
 * Matplotlib - Plotting
-* Pandas - Pre-processing and data manipulation
+* Pandas - Preprocessing and data manipulation
 * Numpy - Array manipulation
 * Rpy2 - Interacting with R inside Python
 * Sklearn - Hierarchical clustering, dimension reduction 
 
 Optional stuff:
 
-* Factor-analyzer - Analysing the factor importances for our model
-* Advanced-pca - Performing PCA decomposition
-* Scipy - Visualizing the dendogram
-
-All of those should be just a `pip install` away!
+* Factor-analyzer - Analyzing the factor importances for our model
+* Advanced-pca - Performing PCA decomposition with rotation
+* Scipy - Visualizing the dendrogram
 
 For R, you'll just need one external library - `psych`. 
 
 ## Dataset
 
-Michael's original MLS data is [here](https://github.com/mimburgi/SoccerStuff/blob/master/ASAclusters/2019summary.txt). It has 19 features for each player and there are a total of 275 players. Most of those (16), we can pull directly from the public sites (fbref and understat). The other three are where we differ from his data. They are:
+Michael's original MLS data is [here](https://github.com/mimburgi/SoccerStuff/blob/master/ASAclusters/2019summary.txt). It has 19 features for each player and there are a total of 275 players. Most of those (16), we can pull directly from the public sites (fbref and understat). The other three - where we differ slightly - are:
 
 * xP% - expected Pass %
 * % of possession chains in which player participated with a shot
 * % of possession chains in which player participated with a key pass
 
-Since those three features are not available publicly on fbref, I had to work those out myself. While the latter two are straighforward enough, for the xP% value, I used a simple logistic regression classifer and trained it on the spatial coordinates of passes plus some other features encoding the game state(time, score, speed of play).
+Since those three features are not available publicly on fbref, I had to work those out myself. While the latter two are straightforward enough, for the xP% value, I used a simple logistic regression classifier and trained it on the spatial coordinates of passes plus some other features encoding the game state(time, score, speed of play). It's probably not as great as ASA's model but it will do for now. 
 
-The resulting dataframe after merging the various data sources is [here]() and this is our starting point.
+The resulting dataframe after merging the various data sources is [here](https://github.com/sharmaabhishekk/random_stuff/blob/master/player_roles_cluster_impl/data.csv) and this is our starting point.
 
 ## Preprocessing
 
@@ -146,9 +145,9 @@ with plt.style.context('ggplot'):
 
 ![Unclustered Reduced Players](../images/player_roles_clustering/scatter_positions.png)
 
-As we can see, the clusters are looking pretty, well, cluster-y. That's a good sign. The two separate groups of defenders (in red) are probably, fullbacks and centrebacks (it's a shame fbref doesn't differentiate between the two). Feel free to plot the names of the players to check what the other clusters roughly are. 
+As we can see, the clusters are looking pretty, well, cluster-y. That's a good sign. The two separate groups of defenders (in red) are probably, fullbacks and center backs (it's a shame fbref doesn't differentiate between the two). Feel free to plot the names of the players to check what the other clusters roughly are. 
 
-For clustering our t-SNE reduced player attributes, we'll use a hierarchical clustering method. From the original article, Michael settles on 11 clusters. That gives us enough scope for at least two player roles for each position on paper - forwards, creative mids/wide forwards, deeper midfielders, centre-backs, and fullbacks(theoretically, at least). It is also a nice number to form a playing 11 at the end consisting of players from the different clusters with the objective being to create a balanced team across the board. 
+For clustering our t-SNE reduced player attributes, we'll use a hierarchical clustering method. In the original, Michael settles on 11 clusters. That gives us enough scope for at least two player roles for each position on paper - forwards, creative mids/wide forwards, deeper midfielders, center backs, and fullbacks(theoretically, at least). It is also a nice number to form a playing 11 at the end consisting of players from the different clusters with the objective being to create a balanced team across the board. 
 
 ```python
 import scipy.cluster.hierarchy as shc
@@ -160,8 +159,6 @@ with plt.style.context('ggplot'):
 ```
 
 ![Dendogram Hierarchical](../images/player_roles_clustering/dendogram.png)
-
-
 *11 clusters means a cut-off right around here - the vertical dotted line.*
 
 ```python
@@ -170,7 +167,7 @@ model = AgglomerativeClustering(distance_threshold=None, n_clusters=N_CLUSTERS)
 labels = model.fit_predict(Xs_embedded)
 df['label'] = labels
 ```
-After running the clustering algorithm and saving the labels, we'll try to replot the same scatter from before but this time using the generated labels from our agglomerative function. If we're seeing clearer clusters of players, then we're definitely on the right track. 
+After running the clustering algorithm and saving the labels, we'll try to re-plot the same scatter from before but this time using the generated labels from our agglomerative function. If we're seeing clearer clusters of players, then we're definitely on the right track. 
 
 ```python
 with plt.style.context('ggplot'):
@@ -181,9 +178,7 @@ with plt.style.context('ggplot'):
 
 ![Clustered Reduced Players](../images/player_roles_clustering/clustering_tsne_labelled.png)
 
-Success!
-
-The final step is to interpret the clusters generated.
+Success! The final step is to explore the clusters and define our roles.
 
 ## Interpreting the Clusters
 
@@ -194,7 +189,7 @@ The final step is to interpret the clusters generated.
 ...To help, we can go back to a dimension reduction method I skimmed over earlier: PCA. PCA reductions give us more interpretable dimensions...
 ...A standard PCA yields dimensions that are not correlated with each other, but in our case we expect that many dimensions are correlated with each other - for example, dimensions that define a backfield player are probably inversely correlated with dimensions that define a striker. By applying a promax rotation to the dimensions, we end up with clusters that are allowed to be correlated with each other and yield 8 dimensions that we’ll use to interpret the clusters...*"
 
-Sounds easy-peasy but this step was actually deceptively tricky. For one, there's no helper module in python for performing a PCA with promax rotation. And I'm not even remotely good enough at linear algbera to try and perform the rotation by hand using numpy or something. 
+All that sounds fairly easy but this step was actually deceptively tricky. For one, there's no helper module in python for performing a PCA with promax rotation. And I'm not even remotely good enough at linear algebra to try and perform the rotation by hand using numpy or something. 
 
 I tried two ways to work around that. The first one was to try a Factor Analysis with promax rotation instead of PCA with promax. 
 
@@ -204,42 +199,37 @@ fa = FactorAnalyzer(rotation='promax', n_factors = N_INTERPRETABLE_DIMS)
 
 fa.fit(X)
 
-int_Xs = fa.fit_transform(X)
+fa_Xs = fa.fit_transform(X)
 ```
 
 The second one was to try a PCA decomp but with varimax rotation. 
 
 ```python
 from advanced_pca import CustomPCA
-vpca = CustomPCA(n_components=8, rotation='varimax').fit(X)
+vpca_Xs = CustomPCA(n_components=8, rotation='varimax').fit_transform(X)
 ```
 
-Both failed for pretty much the same reason. While the loadings and the dimensions they yielded didn't look entirely unreasonable, they actually were pretty meaningless(or at least they weren't producing the dimensions that we care about). For example, check out the loadings from the Promax CFA below.
+Both failed for pretty much the same reason. While the loadings and the dimensions they yielded didn't look entirely unreasonable, they actually were meaningless(or at least they weren't producing the dimensions that we care about). For example, check out the loadings from the promax CFA below.
 
 ![FA Promax Loadings](../images/player_roles_clustering/fa_promax_loadings.png)
 
+If you don't know what you're staring at, look at each row and see which features are hottest and coldest for them. For example, the first row is hottest at `key_passes_n`, `xA`, `crosses_n`, and `kp_chain_rate`. We can assume this dimension is probably related to **Creating**. Similarly the next one works out to be **Shooting** (high in `shots_n`, `npxG`, `shot_chain_rate`). And so on. The goal is to get the eight dimensions from Michael's post.
 
-If you don't know what you're starting at, look at each row and see which features are hottest/coldest for them. For example, the first row is hottest at `key_passes_n`, `xA`, `crosses_n`, and `kp_chain_rate`. We can assume this dimension is probably related to **Creating**. Similarly the next one works out to be **Shooting** (high in `shots_n`, `npxG`, `shot_chain_rate`). And so on.  
-
-Since neither of the methods are really the same as Michael's, we are almost certainly not going to get the same eight dimensions as he did. That however was not even the biggest problem. When we plot the radars - comparing every cluster to the league average, we soon realize the numbers don't really mean anything. For instance, check out cluster label 4. 
+Now since neither of the methods are really the same as Michael's, we are almost certainly not going to get the exact eight dimensions as he did. That, however, was not even the biggest problem. When we plot the radars - comparing every cluster to the league average, we soon realize the numbers don't really mean what we want expect to mean. For instance, check out **cluster number 4**. 
 
 ```python
 print(df.query("label==4")['player_name'].head(5))
 ```
-*12      Jack Grealish
- 51    Kevin De Bruyne
- 71     James Maddison
- 78            Willian
- 93        Emi Buendía*
+*Jack Grealish, Kevin De Bruyne, James Maddison, Willian, Emi Buendía*
 
-These players are clearly from the creative midfielders/playmakers cluster. We can safely assume they're probably higher at creating chances than the average league player. However the results of the varimax PCA are telling a different story. 
+These players look like they're from the "creative midfielders/playmakers" cluster. We can safely assume they're probably higher at creating chances than the average league player. However the results of the varimax PCA are telling a different story. 
 
 ```python
-vxs = int_Xs
+vxs = fa_Xs
 vxs = scaler.fit_transform(vxs)
 vxs.shape
 
-vcols = ['Creating', 'Shooting', 'Ball retention', 'Build-up', 'Verticality',  'Dribbling', 'Crossing', 'Involvement']
+vcols = ['Creating', 'Shooting', 'Ball retention', 'Build-up', 'Verticality',  'Dribbling', 'Crossing', 'Involvement'] ##subjective dims 
 
 results = pd.DataFrame(vxs, columns = vcols)
 results['label'] = df['label']
@@ -357,7 +347,7 @@ roles_dict = { 0: 'Recycler',
                10:'Wide Support'
               }
 ```
-We can call our (slightly tweaked) `custom_radar` function defined above to create those comparison radars. For example, comparing `ball-playing defender` to `backfield outlet`
+We can call our (slightly tweaked) `custom_radar` function defined above to create those comparison radars. For example, comparing `ball-playing defender` to `backfield outlet`.
 
 ```python
 def custom_radar(label, color, ax=None, average=True):
@@ -404,26 +394,26 @@ ax = custom_radar(label1, 'red')
 ax = custom_radar(label2, 'gold', ax, average=False)
 ```
 
-![Center-backs Comparsion](../images/player_roles_clustering/centre-backs_comparison.png)
+![Center Backs Comparison](../images/player_roles_clustering/centre-backs_comparison.png)
 
 *We can see how both are mostly the same in a lot of metrics like shooting, creating, dribbling but the ball-playing defenders are much more involved in build-up and retain the ball much more/better*
 
 The ramifications of these differences in context of roles is explained very well in the original. Here are the comparison radars for a few other similar clusters.
 
-![Scorers Comparsion](../images/player_roles_clustering/scorers_comparison.png)
+![Scorers Comparison](../images/player_roles_clustering/scorers_comparison.png)
 *Pure Scorers vs Hybrid Scorers*
 
-![Creators Comparsion](../images/player_roles_clustering/playmaker_wide_attacker_comparison.png)
+![Creators Comparison](../images/player_roles_clustering/playmaker_wide_attacker_comparison.png)
 *Wide Attackers vs Playmakers*
 
-![Fullbacks Comparsion](../images/player_roles_clustering/crossing_wide_supp_comparison.png)
+![Fullbacks Comparison](../images/player_roles_clustering/crossing_wide_supp_comparison.png)
 *Crossing Specialist vs Wide Supporter*
 
 ## Limitations and Potential Improvements
 
 Most of the model limitations are mentioned in the, you guessed it, original post. For example, we have no data on defensive activity(though we do know defensive activity is [influenced heavily by opportunity](https://statsbomb.com/2014/06/introducing-possession-adjusted-player-stats/)). Nonetheless, adding possession-adjusted versions of tackles, interceptions, fouls and aerial duels will certainly help us distinguish players who are stylistically different. 
 
-On the topic of data and features, another issue is the absense of spatial data. That would tell us more about *where* on the field do players play. We could also try converting the raw number metrics into team ratios - for example, instead of looking at just number of shots by a player, look at ratio of shots taken by the player to the entire team's. 
+On the topic of data and features, another issue is the absence of spatial data. That would tell us more about *where* on the field do players play. We could also try converting the raw number metrics into team ratios - for example, instead of looking at just number of shots by a player, look at ratio of shots taken by the player to the entire team's. 
 
 
 The second most important limitation is the question about "*high performance within a role vs. misclassification of the player*". For example, a fullback inverting into midfield (looking at you, Kyle Walker) and in general doing more midfielder-y stuff (being more involved in build-up, crossing less) is going to be classified as a midfielder. The best way to go about fixing this would perhaps be a more probabilistic approach to clustering, i.e., predicting that the probability of Walker being a midfielder is 0.45, full-back is 0.5 etc.
@@ -431,9 +421,11 @@ The second most important limitation is the question about "*high performance wi
 
 The third biggest limitation of this method is that there's no regulation on the sizes of the clusters. This combined with the absence of a great evaluation method can (potentially) really mess up your clusters - especially if the features are not carefully chosen too (I can't tell you the number of times I got a cluster full of only Manchester City players after I put in the wrong input). As it is, if you call `np.bincount` on the `labels`, you'll notice that my largest cluster is twice as big as the smallest. Fixing this might also indirectly chip away at the misclassification problem; setting a lower and upper cap on cluster sizes might lead to tighter clusters.
 
-My final idea for improvements is to simply try a bunch of other dimension reduction algorithms(UMAP, variational autoencoders, or even good old PCA), or tweaking the complexity hyperparameter, and/or increasing the number of components for t-SNE reduction). The last part I did try but the improvement wasn't all that much but with the added downside of it being no longer easy enough to create those scatter plots so I decided to leave it out. 
+My final idea for improvements is to simply try a bunch of other dimension reduction algorithms(UMAP, variational auto-encoders, or even good old PCA), or tweaking the complexity hyper-parameter, and/or increasing the number of components for t-SNE reduction). The last part I did try but the improvement wasn't all that much but with the added downside of it being no longer easy enough to create those scatter plots so I decided to leave it out. 
 
-Hopefully, this post was helpful in some manner! For any kind of feedback, feel free to reach out to me on Twitter.
+Hopefully, this post was helpful in some manner! I had a lot of fun working through it. Huge thanks to Michael himself for allowing me to do this plus always patiently helping me with all the questions I had. Also shout out to Sushruta and Maram for reading an earlier version of this draft. :heart:
+
+For any kind of feedback(suggestions/questions) about this post or the code, feel free to reach out to me on Twitter or drop me a mail(the former is always faster though).
 
 
 
