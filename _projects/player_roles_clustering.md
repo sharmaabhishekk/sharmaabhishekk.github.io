@@ -70,11 +70,14 @@ df = pd.read_csv("../data/data.csv")
 
 df = df[["Player", "Pos", "90s", "Standard_Sh", "Expected_npxG", "KP", "xA", "xGChain", "xGBuildup", 
          "Total_Cmp%", "Pass Types_Crs", "Dribbles_Succ", "Miscon", "Receiving_Targ",
-         "Total_PrgDist", "CrsPA", "Prog", "Total_Cmp", "Short_Cmp", "Medium_Cmp", "Long_Cmp", "xPassing%", "shot_chain%", "key_pass_chain%"]]
-df.columns = ['player_name', 'position', '90s', 'shots_n', 'npxG', 'key_passes_n', 'xA', 'xG_chain', 'xG_buildup', 'pass_cmp_rate',
-              'crosses_n', 'succ_dribbles_n', 'miscontrols_n', 'receiving_target_n', 'progressive_distance', 'crosses_pen_area_n',
-              'progressive_passes_n', 'succ_passes_n', 'succ_short_passes_n', 'succ_medium_passes_n', 'succ_long_passes_n', 'x_pass_cmp_rate',
-             'shot_chain_rate', 'kp_chain_rate']
+         "Total_PrgDist", "CrsPA", "Prog", "Total_Cmp", "Short_Cmp", "Medium_Cmp", "Long_Cmp",
+          "xPassing%", "shot_chain%", "key_pass_chain%"]]
+
+df.columns = ['player_name', 'position', '90s', 'shots_n', 'npxG', 'key_passes_n', 'xA', 'xG_chain', 'xG_buildup',
+              'pass_cmp_rate', 'crosses_n', 'succ_dribbles_n', 'miscontrols_n', 'receiving_target_n',
+              'progressive_distance', 'crosses_pen_area_n', 'progressive_passes_n', 'succ_passes_n', 
+              'succ_short_passes_n', 'succ_medium_passes_n', 'succ_long_passes_n', 'x_pass_cmp_rate',
+              'shot_chain_rate', 'kp_chain_rate']
 
 
 df.fillna(0, inplace=True)
@@ -90,12 +93,8 @@ df[['shots_n', 'npxG', 'key_passes_n', 'xA', 'xG_chain', 'xG_buildup', 'crosses_
     'receiving_target_n', 'progressive_distance', 'crosses_pen_area_n', 'progressive_passes_n']] = df[['shots_n', 'npxG', 'key_passes_n', 'xA', 'xG_chain', 'xG_buildup', 'crosses_n', 'succ_dribbles_n', 'miscontrols_n',
     'receiving_target_n', 'progressive_distance', 'crosses_pen_area_n', 'progressive_passes_n']].div(df['90s'], axis=0)
 
-###vertical passing distance + last 3 not found easily enough so we'll drop those features
-
 ##drop useless columns
 df.drop(["succ_passes_n", "succ_short_passes_n", "succ_long_passes_n", "succ_medium_passes_n"], axis=1, inplace=True)
-
-##store away player details and then keep only features in df
 
 features = ['shots_n', 'npxG', 'key_passes_n', 'xA', 'xG_chain', 'xG_buildup', 'crosses_n',
             'succ_dribbles_n', 'miscontrols_n', 'receiving_target_n', 'progressive_distance',
@@ -103,7 +102,7 @@ features = ['shots_n', 'npxG', 'key_passes_n', 'xA', 'xG_chain', 'xG_buildup', '
             'pass_cmp_rate', 'x_pass_cmp_rate', 'shot_chain_rate', 'kp_chain_rate']
 
 
-df[features] = pd.DataFrame(scaler.fit_transform(df[features].values), columns=features, index=df.index)
+df[features] = pd.DataFrame(scaler.fit_transform(df[features].values), columns=features, index=df.index) ##scale values inplace
 X = df[features].values
 
 N_FEATURES = len(features)
@@ -147,7 +146,7 @@ with plt.style.context('ggplot'):
 
 As we can see, the clusters are looking pretty, well, cluster-y. That's a good sign. The two separate groups of defenders (in red) are probably, fullbacks and center backs (it's a shame fbref doesn't differentiate between the two). Feel free to plot the names of the players to check what the other clusters roughly are. 
 
-For clustering our t-SNE reduced player attributes, we'll use a hierarchical clustering method. In the original, Michael settles on 11 clusters. That gives us enough scope for at least two player roles for each position on paper - forwards, creative mids/wide forwards, deeper midfielders, center backs, and fullbacks(theoretically, at least). It is also a nice number to form a playing 11 at the end consisting of players from the different clusters with the objective being to create a balanced team across the board. 
+For clustering our t-SNE reduced player attributes, we'll use a **hierarchical clustering** method. In the original, Michael settles on 11 clusters. That gives us enough scope for at least two player roles for each position on paper - forwards, creative mids/wide forwards, deeper midfielders, center backs, and fullbacks(theoretically, at least). It is also a nice number to form a playing 11 at the end consisting of players from the different clusters with the objective being to create a balanced team across the board. 
 
 ```python
 import scipy.cluster.hierarchy as shc
@@ -429,7 +428,7 @@ _______
 
 Hopefully, this post was helpful in some manner! I had a lot of fun working through it. Huge thanks to Michael himself for allowing me to do this plus always patiently helping me with all the questions I had. Also shout out to Sushruta and Maram for reading an earlier version of this draft. :heart:
 
-For any kind of feedback(suggestions/questions) about this post or the code, feel free to reach out to me on Twitter or drop me a mail(the former is always faster though).
+For any kind of feedback(suggestions/questions) about this post or the code, feel free to reach out to me on Twitter or drop me a mail(the former is always faster).
 
 
 
