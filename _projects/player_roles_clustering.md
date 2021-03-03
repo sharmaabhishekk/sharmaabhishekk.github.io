@@ -422,11 +422,11 @@ The **second** most important limitation is the question about "*high performanc
 
 The **third** biggest limitation of this method is that there's no regulation on the sizes of the clusters. This combined with the absence of a great evaluation method can (potentially) really mess up your clusters - especially if the features are not carefully chosen too (I can't tell you the number of times I got a cluster full of only Manchester City players after I put in the wrong input). As it is, if you call `np.bincount` on the `labels`, you'll notice that my largest cluster is twice as big as the smallest. Fixing this might also indirectly chip away at the misclassification problem; setting a lower and upper cap on cluster sizes might lead to tighter clusters.
 
-My final idea for improvements is to simply try a bunch of other dimension reduction algorithms(UMAP, variational auto-encoders, or even good old PCA), or tweaking the complexity hyper-parameter, and/or increasing the number of components for t-SNE reduction). The last part I did try but the improvement wasn't all that much but with the added downside of it being no longer easy enough to create those scatter plots so I decided to leave it out. 
+My final idea for possible improvements is to simply try a bunch of other dimension reduction algorithms(UMAP, variational auto-encoders, or even good old PCA), or tweaking the complexity hyper-parameter, and/or increasing the number of components for t-SNE reduction). The last part I did try but the improvement wasn't all that much but with the added downside of it being no longer easy enough to create those scatter plots so I decided to leave it out. 
 
 _______
 
-Hopefully, this post was helpful in some manner! I had a lot of fun working through it. Huge thanks to Michael himself for allowing me to do this plus always patiently helping me with all the questions I had. Also shout out to Sushruta and Maram for reading an earlier version of this draft. :heart:
+Hopefully, this post was helpful in some manner! I had a lot of fun working through it. Huge thanks to Michael himself for allowing me to do this plus always patiently helping me with all the questions I had. Also shout out to [Sushruta](https://twitter.com/nandy_sd) and [Maram](https://twitter.com/maramperninety) for reading an earlier version of this draft. :heart:
 
 For any kind of feedback(suggestions/questions) about this post or the code, feel free to reach out to me on Twitter or drop me a mail(the former is always faster).
 
