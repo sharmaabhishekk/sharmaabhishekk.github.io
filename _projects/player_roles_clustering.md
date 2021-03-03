@@ -1,7 +1,7 @@
 ---
 name: Player Roles Clustering 
 tools: [Python, Sklearn, Clustering, Fbref]
-image: "../images/player_roles_clustering/kyle_walker.jpeg"
+image: "../images/player_roles_clustering/kyle_walker.png"
 description: Re-implementing ASA's Player Roles Clustering Method in Python
 ---
 
@@ -404,7 +404,7 @@ ax = custom_radar(label1, 'red')
 ax = custom_radar(label2, 'gold', ax, average=False)
 ```
 
-![Center-backs Comparsion](../images/player_roles_clustering/center-backs_comparison.png)
+![Center-backs Comparsion](../images/player_roles_clustering/centre-backs_comparison.png)
 
 *We can see how both are mostly the same in a lot of metrics like shooting, creating, dribbling but the ball-playing defenders are much more involved in build-up and retain the ball much more/better*
 
