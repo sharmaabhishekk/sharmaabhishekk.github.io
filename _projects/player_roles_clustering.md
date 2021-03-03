@@ -323,8 +323,6 @@ results[itp_dims] = pd.DataFrame(scaler.fit_transform(results[itp_dims].values),
 
 print(results.head())
 ```
----
----
 
 | Left          | Center        | Right   |
 | ------------- |:-------------:| -------:|
