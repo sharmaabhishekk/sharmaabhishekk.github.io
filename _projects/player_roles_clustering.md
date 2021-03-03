@@ -323,11 +323,13 @@ results[itp_dims] = pd.DataFrame(scaler.fit_transform(results[itp_dims].values),
 
 print(results.head())
 ```
+```
  | Left          | Center        | Right   |
  | ------------- |:-------------:| -------:|
  | col 3 is      | right-aligned | $160000 |
  | col 2 is      | centered      | $12     |
  | **Use**       | `Markdown`    | $1      |
+``` 
 
 ### Defining Roles
 
