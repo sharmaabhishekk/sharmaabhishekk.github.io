@@ -1,9 +1,12 @@
-- title: Student, TIU, Kolkata
+- title: BBA(H) TIU, Kolkata, 
   from: 2017
+  to: 2020
+  description: 
+
+- title: MS (Data Science), Vijaybhoomi University, Karjat
+  from: 2020
   to: present
-  description: I'm currently completing my BBA(H) from Techno India University, Kolkata. During my first year here, I was
-               inclined towards public policy-making, and represented my college at a few inter-city MUNs.
-               But it was in the field of data science where I found my true passion and hence, that is what I decided to major in!
+  description:     
 
 # - title: Software Engineer, Google, UK
 #   from: 2018

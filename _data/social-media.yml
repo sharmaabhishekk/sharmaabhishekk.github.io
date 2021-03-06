@@ -17,8 +17,8 @@ email:
   color : db4437
 
 facebook:
-  url   : https://www.facebook.com/
-  icon  : fab fa-facebook
+  url   : https://www.kaggle.com/
+  icon  : fab fa-kaggle
   color : 3b5998
 
 github:
@@ -85,3 +85,4 @@ youtube:
   url   : https://www.youtube.com/
   icon  : fab fa-youtube
   color : ff0000
+
