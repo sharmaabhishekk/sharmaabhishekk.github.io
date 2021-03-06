@@ -7,8 +7,8 @@ weight: 3
 
 # **About Me**
 
-Hi I am **{{ site.author.name }}** :wave:,<br>
-I am a business student who's working towards a career in data science. I also like to pretend I understand football.
+Hi I am **{{ site.author.name }}** :wave:<br>
+I am a data science student; currently in the first year of my masters. On this site, I try to write about various applications of statistics and machine learning in football. Come say hi to me on [twitter](https://twitter.com/abhisheksh_98/)!
 
 <div class="row">
 {% include about/skills.html title="Programming Skills" source=site.data.programming-skills %}
