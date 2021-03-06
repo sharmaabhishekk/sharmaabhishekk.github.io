@@ -23,27 +23,27 @@ My objective for this post is pretty simple: to try and stay as close to the ori
 
 I'm assuming you already have python and R installed (yeah I know I said python only but we'll need R for a teeny tiny part). In addition, we will need these python libraries:
 
-* Matplotlib - Plotting
-* Pandas - Preprocessing and data manipulation
-* Numpy - Array manipulation
-* Rpy2 - Interacting with R inside Python
-* Sklearn - Hierarchical clustering, dimension reduction 
+* **Matplotlib** - Plotting
+* **Pandas** - Preprocessing and data manipulation
+* **Numpy** - Array manipulation
+* **Rpy2** - Interacting with R inside Python
+* **Sklearn** - Hierarchical clustering, dimension reduction 
 
 Optional stuff:
 
-* Factor-analyzer - Analyzing the factor importances for our model
-* Advanced-pca - Performing PCA decomposition with rotation
-* Scipy - Visualizing the dendrogram
+* **Factor-analyzer** - Analyzing the factor importances for our model
+* **Advanced-pca** - Performing PCA decomposition with rotation
+* **Scipy** - Visualizing the dendrogram
 
-For R, you'll just need one external library - `psych`. 
+For R, you'll just need one external library - **`psych`**. 
 
 ## Dataset
 
 Michael's original MLS data is [here](https://github.com/mimburgi/SoccerStuff/blob/master/ASAclusters/2019summary.txt). It has 19 features for each player and there are a total of 275 players. Most of those (16), we can pull directly from the public sites (fbref and understat). The other three - where we differ slightly - are:
 
-* xP% - expected Pass %
-* % of possession chains in which player participated with a shot
-* % of possession chains in which player participated with a key pass
+* **xP% - expected Pass %**
+* **% of possession chains in which player participated with a shot**
+* **% of possession chains in which player participated with a key pass**
 
 Since those three features are not available publicly on fbref, I had to work those out myself. While the latter two are straightforward enough, for the xP% value, I used a simple logistic regression classifier and trained it on the spatial coordinates of passes plus some other features encoding the game state(time, score, speed of play). It's probably not as great as ASA's model but it will do for now. 
 
@@ -51,7 +51,7 @@ The resulting dataframe after merging the various data sources is [here](https:/
 
 ## Preprocessing
 
-Most of our preprocessing steps are outlined in the original post. We need to 'per 90'-ify our count stats, set a minimum minutes played threshold, and then scale all count stats(the rate stats are already scaled) to the (0,1) range. The re-scaling part is important since we plan to run t-SNE next on the data.  
+Most of our preprocessing steps are outlined in the original post. We need to *'per 90'-ify* our count stats, set a minimum minutes played threshold, and then scale all count stats(the rate stats are already scaled) to the **(0,1)** range. The re-scaling part is important since we plan to run **t-SNE** next on the data.  
 
 ```python
 import pandas as pd
@@ -158,7 +158,7 @@ with plt.style.context('ggplot'):
 ```
 
 ![Dendogram Hierarchical](../images/player_roles_clustering/dendogram.png)
-*11 clusters means a cut-off right around here - the vertical dotted line.*
+*11 clusters means a cut-off right around the vertical dotted line.*
 
 ```python
 ### Clustering and generating labels
@@ -183,6 +183,7 @@ Success! The final step is to explore the clusters and define our roles.
 
 
 ### What did not work
+
 
 "*...The simplest, and most thorough, way to interpret these clusters is to examine the distribution of each original statistic within the cluster....*
 
@@ -281,6 +282,7 @@ Wait, it's telling us that creators are shooting *more* and actually creating *l
 
 ### What did work
 
+
 In the end, I had to compromise a little and go back to R for performing the decomposition and getting our desired dimensions. Using rpy2, I called the necessary R functions from within my python session. The following code section does all of that and gives us the `results` dataframe. 
 
 ```python
@@ -317,6 +319,7 @@ results[itp_dims] = pd.DataFrame(scaler.fit_transform(results[itp_dims].values),
 ```
 
 ## Defining Roles
+
 
 After we get our interpretable dimensions, we can finally compare players along those dimensions and investigate the inter-cluster differences more minutely. This ultimately helps us assign roles to those labels that we can understand and communicate. The original has 11 different roles for the 11 clusters (ordered from front to back): 
 
@@ -411,6 +414,7 @@ The ramifications of these differences in context of roles is explained very wel
 *Crossing Specialist vs Wide Supporter*
 
 ## Limitations and Potential Improvements
+
 
 Most of the model limitations are mentioned in the, you guessed it, original post. For example, we have no data on defensive activity(though we do know defensive activity is [influenced heavily by opportunity](https://statsbomb.com/2014/06/introducing-possession-adjusted-player-stats/)). Nonetheless, adding possession-adjusted versions of tackles, interceptions, fouls and aerial duels will certainly help us distinguish players who are stylistically different. 
 
