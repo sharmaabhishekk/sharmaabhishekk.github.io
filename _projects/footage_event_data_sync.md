@@ -38,10 +38,10 @@ video_event_data_sync
 │   └── main.py
 ├── timestamps
 ```
-**footage**: folder with both the halves of the match in two separate `.mp4` files. This is important. 
-**out**: directory where the generated video is going to be saved
-**src**: python magic
-**timestamps**: where we'll save the video timestamp corresponding to the actual kick-off time in a `.txt` file. 
+* **footage**: folder with both the halves of the match in two separate `.mp4` files. This is important. 
+* **out**: directory where the generated video is going to be saved
+* **src**: python magic
+* **timestamps**: where we'll save the video timestamp corresponding to the actual kick-off time in a `.txt` file. 
 
 As we run our code, we can expect to see the `out` and `timestamps` directories fill up.
 
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--video_filename', type=str, help='The name of the match video in the footage directory.', required=True)
     parser.add_argument('-e', '--event_matchid', type=int, help='The name of the match_id/file_name for the Statsbomb JSON file.', required=True)
     parser.add_argument('-q', '--query', type=str, help='The pandas query to run to filter the timestamps', required=True)
-    parser.add_argument('-t', '--video_timestamp', type=int, help='The video time to use to infer the match clock. Make sure this frame has the clock prominently displayed', required=True)
+    parser.add_argument('-t', '--video_timestamp', type=int, help='The video time to use to infer the match clock. Make sure this frame has the clock prominently displayed', required=True, default=20)
 
     args = parser.parse_args()    
 
@@ -198,11 +198,11 @@ if __name__ == '__main__':
 
 ```
 
-A quick run-through of what's happening: We first make sure the correct directories exist. Then we ask the user for the filenames for both the video and the event data, the query (say something like all of Modrić's passes from the first half). We next check if a timestamp text file exists for this particular video - if it doesn't we run our `save_kickoff_time` function to create that text file. Next step is to run the query and pass along the results of that to the `return_events_ts` function. The timestamps we get from there, we pass to the `join_and_save_video` function. That function first seeks the video directly to the kick-off time we inferred earlier. Then for each event timestamp, it cuts a short part *around* it and saves it in a list. Finally it compiles all the clips in the list and saves the resulting video. If everything works well, this is our final result. 
+A quick run-through of what's happening: We first make sure the correct directories exist. Then we ask the user for the filenames for both the video and the event data, the query (say something like all of Modrić's passes from the first half). We next check if a timestamp text file exists for this particular video - if it doesn't we run our `save_kickoff_time` function to create that text file. Next step is to run the query and pass along the results of that to the `return_events_ts` function. The timestamps we get from there, we pass to the `join_and_save_video` function. That function first seeks the video directly to the kick-off time we inferred earlier. Then for each event timestamp, it cuts a short part *around* it and saves it in a list. Finally, it compiles all the clips in the list and saves the resulting video. If everything works well, this is our final result. 
 
 ### Testing 
 
-Let's give it a spin. Want to see all of Pogba's passes from the first half? Here you go:
+Let's give this a spin. Want to see all of Pogba's passes from the first half? Here you go:
 
 ```python
 $ python main.py -v '2018_Francia_-_Croacia_-_1.mp4' -e 8658 -t 20 -q "player_name == 'Paul Pogba' & type_name == 'Pass' & period == 1"   
@@ -225,7 +225,8 @@ Combine that with the fact that I want to fully automate the process of detectio
 
 2.) How do I deal with matches where both halves are in the same `.mp4` file? 
 
-3.) A potential idea is to turn this whole thing into a GUI. It doesn't make much sense as a command line utility - from personal experience, analysts usually like to *see* things happening.  
-_______
+3.) A potential idea is to turn this whole thing into a GUI. It doesn't make much sense as a command line utility - from personal experience, analysts usually like to *see* things happening. 
+ 
+_______________________
 
 Nonetheless, I hope this was helpful in some manner! Huge thanks to Statsbomb for the freely available event data and footballia for the free video library! Also, as I'm no expert on software development, there might have been parts where I didn't know what I was talking about. If you want to call me out, or have some other kind of feedback(suggestions/questions), I'm always on twitter. Feel free to drop me a DM!
