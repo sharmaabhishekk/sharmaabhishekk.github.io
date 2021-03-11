@@ -8,18 +8,19 @@ description: Syncing Footage & Event Data to Autogenerate Bespoke Playlists
 # Naive Way to Sync Match Footage and Event Data
 
 
-If you've used Wyscout you probably know all about their excellent curated playlists. You can get all of Ibrahim Sangaré's progressive passes for the entire season or you can check all of Adama Traoré's carries into the final third. It's an invaluable resource for analysts and coaches who do not have to watch entire matches when they just care about some select parts and it saves them a ton of time. 
+If you've ever used Wyscout, you probably know all about their excellent curated playlists. You can get all of Ibrahim Sangaré's progressive passes for the entire season or, you can check all of Adama Traoré's carries into the final third. It's an invaluable resource for analysts and coaches who do not have to watch entire matches when they just care about some select parts as it saves them a ton of time. 
 
-However, Wyscout is costly. Which got me thinking that if there were an open source tool to do almost the same thing but for no cost, what would that look like and how would it work. Probably the easiest way to do this would be to get event data (~~which is mostly free if you know where to look~~) to power it. You'll need full match recordings but those aren't very hard to find either - especially with excellent resources like [footballia](https://footballia.net/). 
+However, Wyscout is costly. Which got me thinking that if there were an open source tool to do almost the same thing but for no cost, what would that look like. Probably the easiest way to do this would be to get event data (~~which is mostly free if you know where to look~~) to power it. You'll need full match footages but those aren't very hard to find either - especially with excellent resources like [footballia](https://footballia.net/). 
 
-There's just a small catch. Just having both(video and event data) doesn't immediately set you up for the good stuff. Most match recordings have some filler at the beginning - pre-match presentations, lineup display, toss - all of those happen before the kick-off. This is a problem because our ***footage starting point does not line up with our event data feed starting point***.
+There's just a small catch. Just having the video and event data doesn't immediately set you up for the good stuff. Most match recordings have some filler at the beginning - pre-match presentations, lineup display, toss - all of those happen before the kick-off. This is a problem because our ***footage starting point does not line up with our event data feed starting point***. If, however, we can remove all that, that should line up both exactly.
 
-If we can figure out at what point exactly in our footage the match kicks off, we're good to go. The simplest way to do that is probably to just detect the match clock (the ones usually in the top left corner-near the scoreline and team names). Once we have that, we can use some computer vision magic to recognize the timestamp, read it, discard the parts of the video before that and that should automatically do the trick. In this post, we're going to attempt to do exactly that. 
+How do we do that? Again, the simplest way is probably to just utilize the match clock (the ones usually in the top left corner-near the scoreline and team names). Once we have that, we can use some computer vision magic to recognize the timestamp, read it, discard the parts of the video before that and that should automatically do the trick. *In this post, we're going to attempt to do exactly that.* 
+
+[Here](https://github.com/sharmaabhishekk/random_stuff/blob/master/automate_touch_compilation/main.py)'s the code for this post in case you want to skip the rest of the write-up.
 
 ![match_clock](../images/footage_event_data_sync/1.png)
 > *The Match Clock/Match Timestamp*
-
-[Here](https://github.com/sharmaabhishekk/random_stuff/blob/master/automate_touch_compilation/main.py)'s the code for this post in case you want to skip the rest of the write-up. 
+ 
 
 ## Data 
 
@@ -29,7 +30,6 @@ Before we start coding, here's what my file structure looks like.
 
 ```python
 video_event_data_sync
-|
 ├── footage
 │   ├── France_Croatia_1.mp4 
 │   └── France_Croatia_2.mp4 
@@ -122,11 +122,11 @@ When we call the function, we get a window like this:
 Our job here is to just draw a rectangle around the match clock. Like so:
 
 ![RoI Window Selected](../images/footage_event_data_sync/Screenshot66.png)
-> *Check out the black box around 09:52*
+> *Check out the black box drawn around 09:52*
 
 Once we've done that, the console prints out the detected time:
 
-{% include elements/highlight.html text="***Detected time: 9 mins and 52 secs***" %}
+{% include elements/highlight.html text="Detected time: 9 mins and 52 secs" %}
 
 
 If the detected time matches up with the displayed time, then we're doing great so far. Our next step is to write a couple simple functions to load in the Statsbomb JSON file as a dataframe and then use that dataframe to get our event timestamps.
@@ -234,14 +234,16 @@ $ python main.py -v 'France_Croatia_1.mp4' -e 8658 -t 20 -q "team_name == 'Croat
 
 This is just a bare bones tool and I have no doubt clubs and organizations use a much more robust, way more beefed-up version. There are tons of possible things to improve on and lots of edge cases which can (and will) creep in. A couple important, more pertinent, ones are:
 
-1.) ***Tesseract*** doesn't always work. It's not an off-the-shelf solution (even though I have used it as such here). Different match footages, different aesthetics, different fonts, different resolutions, and probably even different backgrounds - any of those can get the time recognition part to break. The configuration I chose just seemed to work best but there's no guarantee. For more reliable production purposes, you'd almost certainly want a more sophisticated/robust tool.
+1.) ***Tesseract*** doesn't always work. It's not an off-the-shelf solution (even though I have used it as such here). Different match footages, different fonts, different resolutions, and probably even different backgrounds - any of those can get the time recognition part to break. The configuration I chose just seemed to work best but there's no guarantee. For more reliable production purposes, you'd almost certainly want a more sophisticated/robust tool.
 
 Combine that with the fact that I want to fully automate the process of detection, i.e., not having the analyst to draw the box themselves either and this gets even tougher because then the detection would have to work on a much larger image. 
 
+
 2.) How do I deal with matches where both halves are in the same `.mp4` file? 
+
 
 3.) A potential idea is to turn this whole thing into a GUI. It doesn't make much sense as a command line utility - from personal experience, analysts usually like to *see* things happening. 
  
 _______________________
 
-Nonetheless, I hope this was helpful in some manner! Huge thanks to Statsbomb for the freely available event data and footballia for the free video library! Also, as I'm no expert on software development, there might have been parts where I didn't know what I was talking about. If you want to call me out, or have some other kind of feedback(suggestions/questions), I'm always on twitter. Feel free to drop me a DM!
+Nonetheless, I hope this was helpful in some manner! Huge thanks to Statsbomb for the freely available event data and footballia for the free video library! Also, as I'm no expert in software development, there might have been parts where I didn't know what I was talking about. If you want to call me out, or have some other kind of feedback(suggestions/questions), I'm always on twitter. Feel free to drop me a DM!
