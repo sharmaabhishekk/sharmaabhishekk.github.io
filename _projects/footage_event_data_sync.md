@@ -31,8 +31,8 @@ Before we start coding, here's what my file structure looks like.
 video_event_data_sync
 |
 ├── footage
-│   ├── 2018_Francia_-_Croacia_-_1.mp4 
-│   └── 2018_Francia_-_Croacia_-_2.mp4 
+│   ├── France_Croatia_1.mp4 
+│   └── France_Croatia_2.mp4 
 ├── out
 ├── src
 │   └── main.py
@@ -205,14 +205,14 @@ A quick run-through of what's happening: We first make sure the correct director
 Let's give this a spin. Want to see all of Pogba's passes from the first half? Here you go:
 
 ```python
-$ python main.py -v '2018_Francia_-_Croacia_-_1.mp4' -e 8658 -t 20 -q "player_name == 'Paul Pogba' & type_name == 'Pass' & period == 1"   
+$ python main.py -v 'France_Croatia_1.mp4' -e 8658 -t 20 -q "player_name == 'Paul Pogba' & type_name == 'Pass' & period == 1"   
 ```
 ![Pogba Compilation](../images/footage_event_data_sync/pog.mp4)
 
 Maybe all pressures by Croatia in France's half of the pitch?
 
 ```python
-$ python main.py -v '2018_Francia_-_Croacia_-_1.mp4' -e 8658 -t 20 -q "team_name == 'Croatia' & type_name == 'Pressure' & loc_x>= 60 & period == 1"
+$ python main.py -v 'France_Croatia_1.mp4' -e 8658 -t 20 -q "team_name == 'Croatia' & type_name == 'Pressure' & loc_x>= 60 & period == 1"
 ```
 
 ## Current Limitations and Room for Improvement
