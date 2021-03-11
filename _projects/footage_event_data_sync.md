@@ -1,7 +1,7 @@
 ---
 name: Automating Query-based Clip Compilation
 tools: [Python, Computer Vision, OpenCV2, Statsbomb]
-image: "../images/footage_event_data_sync/pogba_18_wc.jpg" 
+image: "../images/footage_event_data_sync/pogba_18_wc.png" 
 description: Syncing Footage & Event Data to Autogenerate Bespoke Playlists
 ---
 
