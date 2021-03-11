@@ -128,7 +128,7 @@ Once we've done that, the console prints out the detected time:
 
 ***Detected time: 9 mins and 52 secs***
 
-If the detected time matches up with the displayed time, then we're doing great so far. In the next two functions, we'll write a couple simple functions to load in the Statsbomb JSON file as a dataframe and then use that dataframe to get our event timestamps.
+If the detected time matches up with the displayed time, then we're doing great so far. Our next step is to write a couple simple functions to load in the Statsbomb JSON file as a dataframe and then use that dataframe to get our event timestamps.
 
 ```python
 def get_event_data(match_id):
