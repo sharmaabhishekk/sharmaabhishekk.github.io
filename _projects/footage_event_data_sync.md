@@ -207,13 +207,14 @@ Let's give this a spin. Want to see all of Pogba's passes from the first half? H
 ```python
 $ python main.py -v 'France_Croatia_1.mp4' -e 8658 -t 20 -q "player_name == 'Paul Pogba' & type_name == 'Pass' & period == 1"   
 ```
-![Pogba Compilation](../images/footage_event_data_sync/pog.mp4)
+{% include elements/video.html id="Qj3ZQARoh9Y" %}
 
 Maybe all pressures by Croatia in France's half of the pitch?
 
 ```python
 $ python main.py -v 'France_Croatia_1.mp4' -e 8658 -t 20 -q "team_name == 'Croatia' & type_name == 'Pressure' & loc_x>= 60 & period == 1"
 ```
+{% include elements/video.html id="BTPFd9SPtcY" %}
 
 ## Current Limitations and Room for Improvement
 
