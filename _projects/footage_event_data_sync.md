@@ -115,6 +115,19 @@ def save_kickoff_time():
 
 In our `save_kickoff_time` function, we basically read in the video file, seek directly to a certain time mark(20 minutes is the default), ask the user to draw a rectangle around the clock in the frame, and then save the detected timestamp at that frame in our `timestamps` directory in a `.txt` file. We save it with the same name as our video file so that the next time we try to sync this video, we can just read in the text file and skip this step (alternatively, you can just modify the `.txt` file yourself). 
 
+When we call the function, we get a window like this:
+
+![RoI window](../images/footage_event_data_sync/Screenshot65.png)
+
+Our job here is to just draw a box around the match clock. Like so:
+
+![RoI Window Selected](../images/footage_event_data_sync/Screenshot66.png)
+*check out the black box*
+
+Once we've done that, the console prints out the detected time:
+
+***Detected time: 9 mins and 52 secs***
+
 In the next two functions, we'll write a couple simple functions to load in the Statsbomb JSON file as a dataframe and then use that dataframe to get our event timestamps.
 
 ```python
