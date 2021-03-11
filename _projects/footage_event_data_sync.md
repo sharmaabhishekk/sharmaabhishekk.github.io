@@ -2,24 +2,24 @@
 name: Footage Event Data Sync
 tools: [Python, Computer Vision, OpenCV2, Statsbomb]
 image: "../images/player_roles_clustering/kyle_walker.png" 
-description: Simple way to synchronize match footage with event data
+description: Automating Query-based Clip Compilation
 ---
 
-# Naive Way to Sync Match Footage and Event Data Automatically
+# Naive Way to Sync Match Footage and Event Data
 
 
-If you've used Wyscout you probably know all about their excellent curated playlists. You can get all of Ibrahim Sangaré's progressive passes for the entire season or you can check all of Adama Traoré's carries into the final third. It's an invaluable resource for analysts and coaches who do not have to watch entire matches to just check out some parts and it can save them a ton of time. 
+If you've used Wyscout you probably know all about their excellent curated playlists. You can get all of Ibrahim Sangaré's progressive passes for the entire season or you can check all of Adama Traoré's carries into the final third. It's an invaluable resource for analysts and coaches who do not have to watch entire matches when they just care about some select parts and it saves them a ton of time. 
 
 However, Wyscout is costly. Which got me thinking that if there were an open source tool to do almost the same thing but for no cost, what would that look like and how would it work. Probably the easiest way to do this would be to get event data (~~which is mostly free if you know where to look~~) to power it. You'll need full match recordings but those aren't very hard to find either - especially with excellent resources like [footballia](https://footballia.net/). 
 
-There's just a small catch. Just having both(video and event data) doesn't immediately set you up for the good stuff. Most match recordings have some filler at the beginning - pre-match presentations, lineup display, coin-toss - all of those happen before the kick-off. This is a problem because our footage starting point does not lineup with our event data feed starting point.
+There's just a small catch. Just having both(video and event data) doesn't immediately set you up for the good stuff. Most match recordings have some filler at the beginning - pre-match presentations, lineup display, toss - all of those happen before the kick-off. This is a problem because our ***footage starting point does not lineup with our event data feed starting point***.
 
 If we can figure out at what point exactly in our footage the match kicks off, we're good to go. The simplest way to do that is probably to just detect the match clock (the ones usually in the top left corner-near the scoreline and team names). Once we have that, we can use some computer vision magic to recognize the timestamp, read it, discard the parts of the video before that and that should automatically do the trick. In this post, we're going to attempt to do exactly that. 
 
 ![match_clock](../images/footage_event_data_sync/1.png)
 *The Match Clock/Match Timestamp*
 
-[Here](https://github.com/sharmaabhishekk/random_stuff/blob/master/automate_touch_compilation/main.py)'s the code for this post in case you want to skip the rest of the write-up and only care about that. 
+[Here](https://github.com/sharmaabhishekk/random_stuff/blob/master/automate_touch_compilation/main.py)'s the code for this post in case you want to skip the rest of the write-up. 
 
 ## Data 
 
@@ -66,7 +66,7 @@ In terms of external libraries, all we need are:
 
 (*For pytesseract to work, you'll need [tesseract](https://github.com/tesseract-ocr/tesseract) installed*)
 
-### Recognizing timestamp
+### Recognizing the timestamp
 
 Identifying the current time in the match from the footage is really the biggest concern for us. Taking care of this is going to make everything else seem trivial. At any rate, we also have the option to just skip this step entirely. If the user(analyst/coach) can provide the exact timestamp(correct to a second) of the kick-off moment from the video, this step becomes superfluous. Nonetheless, keeping this in gives us more scope for automation in the future. 
 
@@ -191,7 +191,7 @@ if __name__ == '__main__':
         ko_millisec_ts = float(f.read())
 
     df = get_event_data(args.event_matchid)
-    query_str = args.query ##f""
+    query_str = args.query 
     timestamps = return_events_ts(df, query_str)
     print(len(timestamps))
     join_and_save_video(timestamps)
@@ -220,7 +220,7 @@ $ python main.py -v 'France_Croatia_1.mp4' -e 8658 -t 20 -q "team_name == 'Croat
 
 This is just a bare bones tool and I have no doubt clubs and organizations use a much more robust, way more beefed-up version. There are tons of possible things to improve on and lots of edge cases which can (and will) creep in. A couple important, more pertinent, ones are:
 
-1.) *Tesseract* doesn't always work. It's not an off-the-shelf solution (even though I have used it as such here). Different match footages, different aesthetics, different fonts, different resolutions, and probably even different backgrounds - any of those can get the time recognition part to break. The configuration I chose just seemed to work best but there's no guarantee. For more reliable production purposes, you'd almost certainly want a more sophisticated/robust tool.
+1.) ***Tesseract*** doesn't always work. It's not an off-the-shelf solution (even though I have used it as such here). Different match footages, different aesthetics, different fonts, different resolutions, and probably even different backgrounds - any of those can get the time recognition part to break. The configuration I chose just seemed to work best but there's no guarantee. For more reliable production purposes, you'd almost certainly want a more sophisticated/robust tool.
 
 Combine that with the fact that I want to fully automate the process of detection, i.e., not having the analyst to draw the box themselves either and this gets even tougher because then the detection would have to work on a much larger image. 
 
