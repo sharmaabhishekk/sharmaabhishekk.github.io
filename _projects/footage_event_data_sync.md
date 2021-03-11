@@ -119,16 +119,16 @@ When we call the function, we get a window like this:
 
 ![RoI window](../images/footage_event_data_sync/Screenshot65.png)
 
-Our job here is to just draw a box around the match clock. Like so:
+Our job here is to just draw a rectangle around the match clock. Like so:
 
 ![RoI Window Selected](../images/footage_event_data_sync/Screenshot66.png)
-*check out the black box*
+*Check out the black box around 09:52*
 
 Once we've done that, the console prints out the detected time:
 
 ***Detected time: 9 mins and 52 secs***
 
-In the next two functions, we'll write a couple simple functions to load in the Statsbomb JSON file as a dataframe and then use that dataframe to get our event timestamps.
+If the detected time matches up with the displayed time, then we're doing great so far. In the next two functions, we'll write a couple simple functions to load in the Statsbomb JSON file as a dataframe and then use that dataframe to get our event timestamps.
 
 ```python
 def get_event_data(match_id):
