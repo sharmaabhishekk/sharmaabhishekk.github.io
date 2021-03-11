@@ -1,8 +1,8 @@
 ---
-name: Footage Event Data Sync
+name: Automating Query-based Clip Compilation
 tools: [Python, Computer Vision, OpenCV2, Statsbomb]
-image: "../images/player_roles_clustering/kyle_walker.png" 
-description: Automating Query-based Clip Compilation
+image: "../images/player_roles_clustering/pogba_18_wc.jpg" 
+description: Syncing Footage & Event Data to Autogenerate Bespoke Playlists
 ---
 
 # Naive Way to Sync Match Footage and Event Data
@@ -12,12 +12,12 @@ If you've used Wyscout you probably know all about their excellent curated playl
 
 However, Wyscout is costly. Which got me thinking that if there were an open source tool to do almost the same thing but for no cost, what would that look like and how would it work. Probably the easiest way to do this would be to get event data (~~which is mostly free if you know where to look~~) to power it. You'll need full match recordings but those aren't very hard to find either - especially with excellent resources like [footballia](https://footballia.net/). 
 
-There's just a small catch. Just having both(video and event data) doesn't immediately set you up for the good stuff. Most match recordings have some filler at the beginning - pre-match presentations, lineup display, toss - all of those happen before the kick-off. This is a problem because our ***footage starting point does not lineup with our event data feed starting point***.
+There's just a small catch. Just having both(video and event data) doesn't immediately set you up for the good stuff. Most match recordings have some filler at the beginning - pre-match presentations, lineup display, toss - all of those happen before the kick-off. This is a problem because our ***footage starting point does not line up with our event data feed starting point***.
 
 If we can figure out at what point exactly in our footage the match kicks off, we're good to go. The simplest way to do that is probably to just detect the match clock (the ones usually in the top left corner-near the scoreline and team names). Once we have that, we can use some computer vision magic to recognize the timestamp, read it, discard the parts of the video before that and that should automatically do the trick. In this post, we're going to attempt to do exactly that. 
 
 ![match_clock](../images/footage_event_data_sync/1.png)
-*The Match Clock/Match Timestamp*
+> *The Match Clock/Match Timestamp*
 
 [Here](https://github.com/sharmaabhishekk/random_stuff/blob/master/automate_touch_compilation/main.py)'s the code for this post in case you want to skip the rest of the write-up. 
 
@@ -122,11 +122,12 @@ When we call the function, we get a window like this:
 Our job here is to just draw a rectangle around the match clock. Like so:
 
 ![RoI Window Selected](../images/footage_event_data_sync/Screenshot66.png)
-*Check out the black box around 09:52*
+> *Check out the black box around 09:52*
 
 Once we've done that, the console prints out the detected time:
 
-***Detected time: 9 mins and 52 secs***
+{% include elements/highlight.html text="***Detected time: 9 mins and 52 secs***" %}
+
 
 If the detected time matches up with the displayed time, then we're doing great so far. Our next step is to write a couple simple functions to load in the Statsbomb JSON file as a dataframe and then use that dataframe to get our event timestamps.
 
