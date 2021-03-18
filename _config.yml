@@ -44,8 +44,12 @@ author:
   twitter           : abhisheksh_98
 # vimeo             : your_username
 # youtube           : your_channel_name
-  kaggle            : abhisheksharma1998
+#  kaggle            : abhisheksharma1998
 
+# ##latex
+# markdown: kramdown
+# kramdown:
+#     math_engine: katex
 
 ### Posts ###
 permalink: /blog/:title
