@@ -30,9 +30,12 @@ The dataset we're going to use is the entire last season of Premier League (2019
 
 ## Getting Started
 
+
 ### The Formula
 
-$h_\theta(x) = \Large\frac{1}{1 + \mathcal{e}^{(-\theta^\top x)}}$
+$V_{x,y} = (s_{x,y} \times g_{x,y}) + (m_{x,y} \times \sum_{z=1}^{16} \sum_{w=1}^{12} T_{(x,y)\rightarrow(z,w)} V_{z,w})$
+
+
 
 
 ## Limitations and Potential Improvements
