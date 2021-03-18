@@ -37,14 +37,14 @@ The final equation as well as the intuition behind it is very well described by 
 
 > Let $V_{x,y}$ be the "value" that our algorithm assigns to zone $(x,y)$. Now imagine you have the ball at your feet in zone $(x,y)$. You have two choices: shoot, or move the ball. Based on past data, we know that whenever you shoot from here, you will score with probability $g_{x, y}$. Thus, if you shoot, your expected payoff is $g_{x,y}$.
 
-Or, you can opt to move the ball via a pass to a teammate or by dribbling it yourself. But there's another choice to make here: which of the 192 zones should you move it to? Say you choose to move the ball to some new zone, $(z, w)$. In this case, your expected payoff is the value at zone,$(z, w)$, i.e. $V_{z, w}$. But this was just one of the 192 choices that you had; how can we compute the expected payoff for all of the 192 choices in totality? Here's where the move transition matrix $T_{x,y}$ comes in: based on past data, we know where you're likely to move the ball to whenever you're in zone $(x, y)$, so we can proportionally weight the payoffs from each of the 192 zones. Specifically, for each zone $(z, w)$, the payoff is $T_{(x,y)\rightarrow(z,w)} \times V_{z,w}$, i.e. the probability of moving to that zone times the reward from that zone. To get the total expected payoff for moving the ball, we must sum this quantity over all possible zones:
+> Or, you can opt to move the ball via a pass to a teammate or by dribbling it yourself. But there's another choice to make here: which of the 192 zones should you move it to? Say you choose to move the ball to some new zone, $(z, w)$. In this case, your expected payoff is the value at zone,$(z, w)$, i.e. $V_{z, w}$. But this was just one of the 192 choices that you had; how can we compute the expected payoff for all of the 192 choices in totality? Here's where the move transition matrix $T_{x,y}$ comes in: based on past data, we know where you're likely to move the ball to whenever you're in zone $(x, y)$, so we can proportionally weight the payoffs from each of the 192 zones. Specifically, for each zone $(z, w)$, the payoff is $T_{(x,y)\rightarrow(z,w)} \times V_{z,w}$, i.e. the probability of moving to that zone times the reward from that zone. To get the total expected payoff for moving the ball, we must sum this quantity over all possible zones:
 
-$\sum_{z=1}^{16} \sum_{w=1}^{12} T_{(x,y)\rightarrow(z,w)} \times V_{z,w} $
+> $\sum_{z=1}^{16} \sum_{w=1}^{12} T_{(x,y)\rightarrow(z,w)} \times V_{z,w} $
 
-Finally, let's piece it all together. We computed the payoff if you shoot as $g_{x, y}$, and the payoff if you move the ball as 
- $\sum_{z=1}^{16} \sum_{w=1}^{12} T_{(x,y)\rightarrow(z,w)} \times V_{z,w}$. Based on past data, we know that you tend to shoot $s_{x,y}$ percent of the time, and you opt to move the ball $m_{x,y}$ percent of the time. Therefore, let's weight these two outcomes based on the probability of each of them happening, to obtain our final value for zone $(x, y)$:
+> Finally, let's piece it all together. We computed the payoff if you shoot as $g_{x, y}$, and the payoff if you move the ball as 
+$\sum_{z=1}^{16} \sum_{w=1}^{12} T_{(x,y)\rightarrow(z,w)} \times V_{z,w}$. Based on past data, we know that you tend to shoot $s_{x,y}$ percent of the time, and you opt to move the ball $m_{x,y}$ percent of the time. Therefore, let's weight these two outcomes based on the probability of each of them happening, to obtain our final value for zone $(x, y)$:
 
-$V_{x,y} = (s_{x,y} \times g_{x,y}) + (m_{x,y} \times \sum_{z=1}^{16} \sum_{w=1}^{12} T_{(x,y)\rightarrow(z,w)} V_{z,w})$
+> $V_{x,y} = (s_{x,y} \times g_{x,y}) + (m_{x,y} \times \sum_{z=1}^{16} \sum_{w=1}^{12} T_{(x,y)\rightarrow(z,w)} V_{z,w})$
 
 
 
