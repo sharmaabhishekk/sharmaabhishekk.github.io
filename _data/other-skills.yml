@@ -1,7 +1,20 @@
-# - name: Adobe Photoshop
-#   percentage: 95
-#   color: info
+- name: MS Excel
+  percentage: 60
+  color: success  
 
-# - name: Adobe Illustrator
-#   percentage: 90
-#   color: success
+- name: Tableau
+  percentage: 50
+  color: secondary
+
+- name: Wordpress
+  percentage: 50
+  color: secondary
+
+- name: Heroku
+  percentage: 50
+  color: secondary  
+
+
+
+
+

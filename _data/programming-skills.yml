@@ -1,17 +1,21 @@
 - name: Python
   percentage: 70
-  color: green
+  color: success
 
-- name: R
-  percentage: 50
-  color: danger
+- name: SQL
+  percentage: 70
+  color: success  
 
 - name: Julia
   percentage: 50
-  color: danger
+  color: secondary  
+
+- name: R
+  percentage: 50
+  color: info
 
 - name: C++
   percentage: 30
-  color: blue
+  color: info
 
 
