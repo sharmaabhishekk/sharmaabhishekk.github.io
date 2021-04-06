@@ -414,7 +414,7 @@ print(f"Normalized Brier Score: {normalized_brier_score_loss:.5f}") ##lower=bett
 
 Yay, our model isn't complete rubbish! Should we be happy? Probably not. The baselines from the paper are these:
 
-![Model performances](../images/vaep_gam/mod_perf.png)
+![Model performances](../images/vaep_gam/mod_perf.PNG)
 > Model performances scores. Lower is better
 
 We only care about the **Top 10 Features** model. As you can see, even their logistic regression model does better than our GAM (which has a 0.99 score). So to answer our first question, no our model isn't very good. There might be a number of reasons behind this. I'm assuming the two biggest factors behind our disappointing performance are:
