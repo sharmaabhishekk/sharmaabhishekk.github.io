@@ -14,11 +14,11 @@ date: 2021-04-06
 ![Match Clip](../images/vaep_gam/keita_pressing.gif)
 
 
-Take the above play for example where we can see that Brighton make a mistake in playing out from the back and end up conceding a goal. Davy Pröpper gives away the ball in Brighton's own third due to some great pressing from Naby Keita. Keita then proceeds to set up Mo Salah with a square pass for a relatively simple first-time finish.
+> Take the above play for example where we can see that Brighton make a mistake in playing out from the back and end up conceding a goal. Davy Pröpper gives away the ball in Brighton's own third due to some great pressing from Naby Keita. Keita then proceeds to set up Mo Salah with a square pass for a relatively simple first-time finish.
 
-Ideally, the framework we have in mind should punish the horrible turnover by Pröpper, and reward the ball regain and subsequent pass by Keita and the shot taken by Salah. The first action is important, because this is (one of the ways) how VAEP is different from xT - it not only rewards "good" actions on the ball, it also punishes "bad" actions (like being dispossessed in your own third under minimal pressure). 
+Ideally, the framework we have in mind should punish the horrible turnover by Pröpper, and reward the ball regain and subsequent pass by Keita and the shot taken by Salah. The first action is important, because this is (one of the ways) how VAEP is different from xT - it not only rewards "**good**" actions on the ball, it also punishes "**bad**" actions (like being dispossessed in your own third after a bad first touch). 
 
-In the original implementation, the authors use the XGBoost algorithm on a complex feature set to give us the best predictions. However, using the better predictive power of XGBoost also means loosing a lot of interpretability. This is a big deal because explaining the model findings and implications to analysts and coaches is imperative. Fortunately enough, the authors have also released a simpler version of VAEP which is trained on only **10 features**. It is much more explainable, while being almost as good as the complex XGBoost model. 
+In the original implementation, the authors use the XGBoost algorithm on a complex feature set to give the probability predictions. However, using the better predictive power of XGBoost also means losing a lot of interpretability. This is kind of a big deal because explaining the model findings and implications to analysts and coaches is imperative. Fortunately enough, the authors have also released a simpler version of VAEP which is trained on only **10 features**. *It is much more explainable, while being almost as good as the complex XGBoost model.* This is the model we'll work out in this post. 
 
 
 ##### Links:
@@ -48,11 +48,11 @@ Here's what the paper says re data used.
 
 ![Dataset_paper](../images/vaep_gam/dataset.PNG)
 
-They trained the model on one season of the Premier League and evaluated it on the next season. 
+> They trained the model on one season of the Premier League and evaluated it on the next season. 
 
 Since I don't have two seasons worth of data, and the Statsbomb data is probably not enough to train the model fairly well, we'll use two different datasets. I have event data converted into SPADL for around 280 matches for the 2019/20 season. We'll use this to train the model. And then, we'll evaluate the model on the Statsbomb World Cup dataset. 
 
-[***Note**: This method uses two different data providers so although we're converting both to SPADL, there's bound to be some issues regarding the standardisation of the datasets. However, due to a lack of alternatives, this is a limitation we'll have to accept*]
+[***Note**: This method uses two different data providers so although we're converting both to SPADL, there's bound to be some issues regarding the standardisation of the datasets. However, due to a lack of alternatives, this is a limitation I have to accept.*]
 
 ## Getting Started
 
@@ -66,13 +66,13 @@ Going from our raw data to final VAEP values involves, broadly, three steps:
 
 We've got two different event datasets to use for our training and validation sets. 
 
-* The **training data** is already converted into SPADL format [here](https://drive.google.com/file/d/1EYovXAXkiHkfcSPx8l-ScnwYw9bN2ZLI/view?usp=sharing). Download into your working directory. 
+* The **training data** is already converted into SPADL format [here](https://drive.google.com/file/d/1EYovXAXkiHkfcSPx8l-ScnwYw9bN2ZLI/view?usp=sharing). Download it into your working directory. 
 
 * For our **validation data**, we'll convert the World Cup 2018 dataset from Statsbomb. The socceraction repository already has an example notebook to perform the entire conversion and saving steps. All we need to do is to run that notebook.
 
 -----
 
-Firstly, clone the socceraction examples repository. The notebook you want is the first one - ["1-load-and-convert-statsbomb-data.ipynb"](https://github.com/ML-KULeuven/socceraction/blob/master/public-notebooks/1-load-and-convert-statsbomb-data.ipynb) (you could also download just this notebook). I put the notebook inside the same directory where I was working (which looks like this).
+Firstly, clone the socceraction **public-notebooks** repository. The notebook you want is the first one - ["1-load-and-convert-statsbomb-data.ipynb"](https://github.com/ML-KULeuven/socceraction/blob/master/public-notebooks/1-load-and-convert-statsbomb-data.ipynb) (you could also download just this notebook). I put the notebook inside the same directory where I was working (which looks like this).
 
 ```python
 vaep_gam_implementation
@@ -90,7 +90,7 @@ vaep_gam_implementation
 ├── xt_pre_data.csv
 ```  
 
-The next step is to run the notebook. That's as easy as opening the notebook and run all the cells. If everything works well, you'll have a new folder called `data-fifa` in the `vaep_gam` directory. It contains the data from the 64 World Cup matches converted into SPADL format. 
+The next step is to run the notebook. That's as easy as opening the notebook and running all the cells. If everything works well, you'll have a new folder called `data-fifa` in the `vaep_gam` directory. It contains the data from the 64 World Cup matches converted into SPADL format. 
 
 ### Creating Labels and Features
 
@@ -155,7 +155,7 @@ The GAM described in the paper takes only 10 input features to predict the VAEP 
 
 ![GAM Features](../images/vaep_gam/features.PNG)
 
-Next step is to build those features. 
+Let's build those features! 
 
 ```python
 def get_angle(val):
@@ -222,7 +222,8 @@ def get_features_and_labels(df):
         group["team_2_goals"] = 0
 
         ##calculating scores (for the goal difference feature)
-        goal_indices = group.query("type_name==['shot', 'shot_freekick', 'shot_penalty'] & result_name==['success', 'owngoal']").index
+        goal_indices = group.query("type_name==['shot', 'shot_freekick', 'shot_penalty'] \
+                                    & result_name==['success', 'owngoal']").index
 
         for idx in goal_indices:
 
@@ -304,13 +305,13 @@ Slightly long, eh? But if everything works correctly, you should get your `Xs` a
 train_Xs, train_ys = get_features_and_labels(train_df)
 valid_Xs, valid_ys = get_features_and_labels(valid_df)
 
-print("Training Data:", train_Xs.shape, train_ys.shape)
-print("Validation Data", valid_Xs.shape, valid_ys.shape)
+print("Training Data:", train_Xs.shape)
+print("Validation Data", valid_Xs.shape)
 ```
 
 ### Modelling
 
-Now that we have our data ready, we're ready to get into the modelling part. There are a few good packages for fitting GAMs in python like PyGAM or Prophet, but the paper uses Microsoft's InteractML so we'll stick with that. 
+Now that we have our data ready, we're ready to get into the modelling part. There are a few good packages for fitting GAMs in python like PyGAM or Prophet, but the paper uses **Microsoft's InteractML** so we'll stick with that. 
 
 ![InterpretML screenshot](../images/vaep_gam/interpretml.PNG)
 
@@ -343,16 +344,20 @@ conceding_probs = models["conceding"].predict_proba(valid_Xs)[:, 1]
 vaep_values = scoring_probs - conceding_probs
 ``` 
 Let's plot the histogram of our VAEP values. 
+
 ```python
-plt.hist(vaep_values, bins=20, ec="k", fc="xkcd:salmon");
+with plt.style.context("ggplot"):
+    fig, ax = plt.subplots(figsize=(8,5))
+    ax.hist(vaep_values, bins=20, ec="k", fc="xkcd:salmon")
+    ax.set(xlabel="VAEP Values", ylabel="Frequency", title="Histogram of Derived VAEP Values")
 ```
 ![Histogram of VAEP Values](../images/vaep_gam/vaep_values.png)
 
-The numbers *look* normally distributed with mean slightly more than 0. This makes sense as the majority of events which occur in a match don't directly affect the scoreline to a huge extent (or not at all). 
+The numbers *look* normally distributed with mean slightly more than 0. This makes sense as the majority of events which occur in a match don't directly affect the scoreline to a huge extent (or, not at all). 
 
 #### Model Interpretability 
 
-One of the advantages of using EBM is that with one just line of code, we can get our partial dependency plots to visually explore our univariate and interaction functions and their relationship with the input features. 
+One of the advantages of using EBM is that with one just line of code, we can get our **partial dependency plots** to visually explore our univariate and interaction functions and their relationship with the input features. 
 
 ```python
 from interpret import show
@@ -364,9 +369,9 @@ If you're in a jupyter notebook, this gives you an interactive dashboard to expl
 
 ![End X PDP](../images/vaep_gam/end_x_pdp.png)
 
-What the plot is showing is that as the `end_x` value of an action gets closer to 0 (i.e., closer to our own goal), the chances of conceding increases dramatically.
+> What the plot is showing is that as the `end_x` value of an action gets closer to 0 (i.e., closer to our own goal), the chances of conceding increases dramatically.
 
-[*The y-axis score actually represents the log-odds value - similar to the results of logistic regression*]
+[**Note:***The y-axis score actually represents the log-odds value - similar to the results of logistic regression*]
 
 #### Evaluation and Limitations
 
@@ -374,7 +379,7 @@ All that is good but at some point we need to address the elephant in the room: 
 
 We'll answer the second question first and that will indirectly answer our first question. "***How do we evaluate the model?***"
 
-Since our classification task is highly imbalanced, we can forget about using accuracy. Going back to the paper, the original authors used Brier score to evaluate the model performance. Section 4.3 discusses in detail why AUROC might be a bad choice, when to opt for log loss vs. Brier score and the limitations with simple Brier Score. In the end, they used a customized version of Brier score which they're calling Normalized Brier score. From the paper:
+Since our classification task is highly imbalanced, we can forget about using accuracy. Going back to the paper, the original authors used **Brier score** to evaluate the model performance. Section 4.3 discusses in detail why AUROC might be a bad choice, when to opt for **log loss vs. Brier score** and the limitations with simple Brier Score. In the end, they used a customized version of Brier score which they're calling **Normalized Brier score**. From the paper:
 
 ![Brier Score](../images/vaep_gam/brier_score.PNG)
 
@@ -382,9 +387,9 @@ Since our classification task is highly imbalanced, we can forget about using ac
 
 The things to take away are these:
 
-1. We'll use Brier Score to evaluate our model. 
-2. In order to get Normalized Brier Score Loss values, we'll predict the class distribution for all predictions and then calculate the brier score on that. This will be our baseline to beat. 
-3. We divide our Brier Score by the baseline brier score (from step 2) and our objective becomes to minimize this ratio. 
+1. We'll use **Brier Score** to evaluate our model. 
+2. In order to get Normalized Brier Score Loss values, we'll ***predict the class distribution for all predictions and then calculate the brier score on that***. This will be our **baseline** to beat. 
+3. We ***divide our Brier Score by the baseline brier score*** (from step 2) and our objective becomes to ***minimize*** this ratio. 
 
 Let's write code for all that:
 
@@ -417,13 +422,13 @@ Yay, our model isn't complete rubbish! Should we be happy? Probably not. The bas
 ![Model performances](../images/vaep_gam/mod_perf.PNG)
 > Model performances scores. Lower is better
 
-We only care about the **Top 10 Features** model. As you can see, even their logistic regression model does better than our GAM (which has a 0.99 score). So to answer our first question, no our model isn't very good. There might be a number of reasons behind this. I'm assuming the two biggest factors behind our disappointing performance are:
+We only care about the **Top 10 Features** model. As you can see, even their logistic regression model does better than our GAM (which has a 0.99 score). So to answer our first question, ***no, our model isn't very good***. There might be a number of reasons behind this. I'm assuming the two biggest factors behind our disappointing performance are:
 
-* **Not enough training data**: This one is an evergreen cop-out but really. We only have data from 288 matches unlike the paper's 380 matches and our validation set is also way smaller (64 compared to 380). I wanted to try this out with the open Wyscout data but a) I couldn't figure out the SPADL convertors for wyscout in the socceraction library, and b) I don't really trust their data too much. 
+* **Not enough training data**: This one is an evergreen cop-out but really. We only have data from 288 matches unlike the paper's 380 matches and our validation set is also way smaller (64 compared to 380). I wanted to try this out with the open Wyscout data but **a)** I couldn't figure out the SPADL convertors for wyscout in the socceraction library, and **b)** I don't really trust their data too much. 
 
-* **Difference in data providers**: I have a niggling suspicion that this is the more important factor. We merged two data sources - Statsbomb and Opta. This was probably not the smartest thing to do of me. Differences in data tagging and collection processes are significant and well-reported and even though SPADL attempts to standardize and capture the intersection of both, I highly doubt it fixes everything.  
+* **Difference in data providers**: I have a niggling suspicion that this is the more important factor. We merged two data sources - Statsbomb and Opta. This was probably not the smartest thing to do. Differences in data tagging and collection processes are significant and well-reported and even though SPADL attempts to standardize and capture the intersection of both, I am not sure it fixes everything.  
 
-I'm not saying I did everything *exactly* correct myself. It's very possible I misinterpreted one of the features and messed up some parts of the feature engineering steps. However, since the features are only 10 and in fact, relatively straight-forward, I doubt that. It's also possible we have to tune some hyperparameters to get better results but I doubt that too because a) the model doesn't really have any hyperparameters to tune, and b) the paper explicitly states that they did not optimize any hyperparameters and their reported results are using the default parameters only.  
+I'm not saying I did everything *exactly* correct myself. It's very possible I misinterpreted one of the features and messed up some parts of the feature engineering steps. However, since the features are only 10 and in fact, relatively straight-forward, I doubt that. It's also possible we have to tune some hyperparameters to get better results but I doubt that too because **a)** the model doesn't really have any hyperparameters to tune, and **b)** the paper explicitly states that they did not optimize any hyperparameters and their reported results are using the default parameters only.  
 
 ## Final Word
 
@@ -431,6 +436,6 @@ I'm not saying I did everything *exactly* correct myself. It's very possible I m
 
 I was debating throwing out all the work given how bad our model seems to be doing but ultimately, decided against it. I hope there's *some* value to be gained from this implementation. Obviously, if you have any ideas or have worked out some code (even better!) to decrease the normalized brier score, please DM me. 
 
-All the code to reproduce the models is [here](https://github.com/sharmaabhishekk/blog_posts/tree/main/vaep_gam_implementation/notebooks). Huge thanks to [Tom Decross](https://twitter.com/TomDecroos?s=20), one of the authors of the VAEP papers for very patiently answering all my noob-ish questions. Feel free to DM me for any feedback/questions/criticism!
+All the code to reproduce the models is [here](https://github.com/sharmaabhishekk/blog_posts/tree/main/vaep_gam_implementation/notebooks). Huge thanks to [Tom Decross](https://twitter.com/TomDecroos?s=20), one of the authors of the VAEP papers for very patiently answering all my noobish questions. Feel free to reach out to me for any feedback/questions/criticism!
 
 -----------
