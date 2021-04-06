@@ -46,7 +46,7 @@ We'll need the `socceraction` library to convert the Statsbomb data to [SPADL](h
 
 Here's what the paper says re data used. 
 
-![Dataset_paper](../images/vaep_gam/dataset.png)
+![Dataset_paper](../images/vaep_gam/dataset.PNG)
 
 They trained the model on one season of the Premier League and evaluated it on the next season. 
 
@@ -153,7 +153,7 @@ The GAM described in the paper takes only 10 input features to predict the VAEP 
 * ***forward movement*** of the ***third last action***
 * ***time*** between the ***last and third last action***
 
-![GAM Features](../images/vaep_gam/features.png)
+![GAM Features](../images/vaep_gam/features.PNG)
 
 Next step is to build those features. 
 
@@ -312,7 +312,7 @@ print("Validation Data", valid_Xs.shape, valid_ys.shape)
 
 Now that we have our data ready, we're ready to get into the modelling part. There are a few good packages for fitting GAMs in python like PyGAM or Prophet, but the paper uses Microsoft's InteractML so we'll stick with that. 
 
-![InterpretML screenshot](../images/vaep_gam/interpretml.png)
+![InterpretML screenshot](../images/vaep_gam/interpretml.PNG)
 
 ```python
 from interpret.glassbox import ExplainableBoostingClassifier
@@ -376,9 +376,9 @@ We'll answer the second question first and that will indirectly answer our first
 
 Since our classification task is highly imbalanced, we can forget about using accuracy. Going back to the paper, the original authors used Brier score to evaluate the model performance. Section 4.3 discusses in detail why AUROC might be a bad choice, when to opt for log loss vs. Brier score and the limitations with simple Brier Score. In the end, they used a customized version of Brier score which they're calling Normalized Brier score. From the paper:
 
-![Brier Score](../images/vaep_gam/brier_score.png)
+![Brier Score](../images/vaep_gam/brier_score.PNG)
 
-![Normalized Brier Score](../images/vaep_gam/norm_brier_score.png)
+![Normalized Brier Score](../images/vaep_gam/norm_brier_score.PNG)
 
 The things to take away are these:
 
