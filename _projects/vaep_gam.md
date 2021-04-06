@@ -2,7 +2,7 @@
 author: abhisheksh_98
 name: Implementing "Interpretable Prediction of Goals in Soccer"
 tools: [Python, Paper Implementation, Machine Learning]
-image: "../images/vaep_gam/cover.png" 
+image: "https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/raw/master/images/vaep_gam/cover.png" 
 description: Implementing the VAEP framework using GAMs
 date: 2021-04-06
 ---

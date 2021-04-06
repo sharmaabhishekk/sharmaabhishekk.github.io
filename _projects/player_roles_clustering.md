@@ -2,7 +2,7 @@
 author: abhisheksh_98
 name: Player Roles Clustering 
 tools: [Python, Sklearn, Clustering, Fbref]
-image: "../images/player_roles_clustering/kyle_walker.png" 
+image: "https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/raw/master/images/player_roles_clustering/kyle_walker.png" 
 description: Re-implementing ASA's Player Roles Clustering Method in Python
 date: 2021-03-03
 ---

@@ -2,7 +2,7 @@
 author: abhisheksh_98
 name: Creating Passmaps in Python
 tools: [Python, Matplotlib, Passmaps, Statsbomb]
-image: "../images/movie.gif"
+image: "https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/raw/master/images/movie.gif"
 description: Passmaps using Matplotib and Pandas
 date: 2020-03-14
 ---

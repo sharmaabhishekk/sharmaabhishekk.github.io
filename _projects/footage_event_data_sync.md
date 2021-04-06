@@ -2,7 +2,7 @@
 author: abhisheksh_98
 name: Automating Query-based Clip Compilation
 tools: [Python, Computer Vision, OpenCV2, Statsbomb]
-image: "../images/footage_event_data_sync/pogba_18_wc.png" 
+image: "https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/raw/master/images/footage_event_data_sync/pogba_18_wc.png" 
 description: Syncing Footage & Event Data to Autogenerate Bespoke Playlists
 date: 2021-03-11
 ---
