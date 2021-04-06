@@ -1,9 +1,9 @@
 ---
 author: abhisheksh_98
-name: Paper Implementation: Using GAMs to Value Actions
+name: Paper Implementation: Using GAMs to Value Actions in Soccer
 tools: [Python, Paper Implementation, Machine Learning]
 image: "https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/raw/master/images/vaep_gam/cover.png" 
-description: Implementing "Interpretable Prediction of Goals in Soccer"
+description: Implementing "Interpretable Prediction of Goals in Soccer" using Python
 date: 2021-04-06
 ---
 
