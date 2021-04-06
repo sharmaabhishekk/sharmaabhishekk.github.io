@@ -1,6 +1,6 @@
 ---
 author: abhisheksh_98
-name: Implementing *Interpretable Prediction of Goals in Soccer*
+name: Paper Implementation: Interpretable Prediction of Goals in Soccer
 tools: [Python, Paper Implementation, Machine Learning]
 image: "https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/raw/master/images/vaep_gam/cover.png" 
 description: Implementing the VAEP framework using GAMs
@@ -40,7 +40,7 @@ I'm assuming you're slightly familiar with the original VAEP paper (check the Li
 * [socceraction](https://pypi.org/project/socceraction/)
 * [interpret](https://pypi.org/project/interpret/)
 
-We'll need the `socceraction` library to convert the Statsbomb data to [SPADL](https://pypi.org/project/socceraction/#:~:text=SPADL%20(Soccer%20Player%20Action%20Description,impact%20on%20the%20score%20line) format. We'll also need `interpretML` to fit the GA2M (basically a GAM but with two interactions allowed).
+We'll need the `socceraction` library to convert the Statsbomb data to [SPADL](https://pypi.org/project/socceraction/#:~:text=SPADL%20Soccer%20Player%20Action%20Description,impact%20on%20the%20score%20line) format. We'll also need `interpretML` to fit the GA2M (basically a GAM but with two interactions allowed).
 
 ## Dataset
 
