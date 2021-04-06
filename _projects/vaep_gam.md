@@ -1,6 +1,6 @@
 ---
 author: abhisheksh_98
-name: Paper Implementation: Interpretable Prediction of Goals in Soccer
+name: "Paper Implementation: Interpretable Prediction of Goals in Soccer"
 tools: [Python, Paper Implementation, Machine Learning]
 image: "https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/raw/master/images/vaep_gam/cover.png" 
 description: Implementing the VAEP framework using GAMs
