@@ -22,6 +22,6 @@ weight: 3
 
 ### Vizzes
 
-Most of my vizzes are made using matplotlib. They're static, largely arbitrary and almost always about football. A collection can be found [here](https://twitter.com/i/events/1287573886700105728)
+Most of my vizzes are made using matplotlib. They're static, largely arbitrary and almost always about football. A collection can be found [here](https://drive.google.com/drive/folders/1gyN-Vv2wgvZsNREMn1kGxMAU5BP7jbZm?usp=sharing)
 
 ![Vizzes Collage](../images/collage.png)
