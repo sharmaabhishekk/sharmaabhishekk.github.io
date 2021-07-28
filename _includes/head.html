@@ -43,13 +43,11 @@
 <meta name="twitter:card"  content="summary_large_image">
 <meta name="twitter:image" content="{{ page.image }}">
 <meta name="twitter:title" content="{{ page.name }}" />
-<meta name="twitter:description" content="{{ page.description }}">
 
 {% else %}
 <meta name="twitter:card"  content="summary">
 <meta name="twitter:image" content="{{ site.title_image }}">
-<meta name="twitter:title" content="{{ site.title }}" />
-<meta name="twitter:description" content="{{ site.subtitle }}">
+<meta name="twitter:title" content="{{ site.title }}{{ site.subtitle }}" />
 
 {% endif %}
 <!-- end of Twitter cards -->
