@@ -35,7 +35,13 @@
 <meta name="twitter:creator" content="@{{ page.author }}">
 <meta name="twitter:title"   content="{{ page.name }}">
 <meta name="twitter:image" content="{{ site.title_image }}">
-<meta name="og:image" content="{{ site.title_image }}">
+<meta name="twitter:card" content="summary" />
+
+{% if page.share-img %}
+<meta name="twitter:image" content="{{ page.share-img }}" />
+{% elsif site.avatar %}
+<meta name="twitter:image" content="{{ site.url }}{{ site.title_image }}" />
+{% endif %}
 
 
 {% if page.summary %}
