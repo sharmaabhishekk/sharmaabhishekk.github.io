@@ -34,13 +34,13 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@{{ site.twitter_username }}">
 <meta name="twitter:creator" content="@{{ page.author }}">
-<meta name="twitter:title" content="{{ page.name }}">
 <meta name="twitter:image" content="{{ site.title_image }}">
 <meta name="og:image" content="{{ site.title_image }}">
 
 
 {% if page.summary %}
 <meta name="twitter:description" content="{{ page.summary }}">
+<meta name="twitter:title" content="{{ page.name }}">
 {% else %}
 <meta name="twitter:description" content="{{ page.description }}">
 <meta name="twitter:title" content="{{ site.title }}">
