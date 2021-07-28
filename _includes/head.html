@@ -31,12 +31,12 @@
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}" type="text/css">
 
 <!-- Twitter cards -->
-<meta name="twitter:site"    content="@{{ site.twitter_username }}">
+<meta name="twitter:site" content="@{{ site.twitter_username }}">
 <meta name="twitter:creator" content="@{{ page.author }}">
-<meta name="twitter:title"   content="{{ page.name }}">
+<meta name="twitter:title" content="{{ page.name }}">
 <meta name="twitter:image" content="{{ site.title_image }}">
 <meta name="og:image" content="{{ site.title_image }}">
-
+<meta name="twitter:card" content="summary">
 
 {% if page.summary %}
 <meta name="twitter:description" content="{{ page.summary }}">
