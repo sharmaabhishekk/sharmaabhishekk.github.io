@@ -34,8 +34,8 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@{{ site.twitter_username }}">
 <meta name="twitter:creator" content="@{{ page.author }}">
+<meta name="twitter:title" content="{{ page.name }}">
 <meta name="twitter:image" content="{{ site.title_image }}">
-<meta name="twitter:title" content="{{ site.title }}" />
 <meta name="og:image" content="{{ site.title_image }}">
 
 
@@ -48,12 +48,10 @@
 {% if page.image %}
 <meta name="twitter:card"  content="summary_large_image">
 <meta name="twitter:image" content="{{ page.image }}">
-<meta name="twitter:description" content="Testing New Bio">
 
 {% else %}
 <meta name="twitter:card"  content="summary">
-<meta name="twitter:image" content="{{ site.url }}{{ site.avatar }}">
-<meta name="twitter:description" content="Testing New Bio">
+<meta name="twitter:image" content="{{ site.avatar }}">
 
 {% endif %}
 <!-- end of Twitter cards -->
