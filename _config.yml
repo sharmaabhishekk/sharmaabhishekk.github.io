@@ -3,8 +3,8 @@ title               : "Abhishek Sharma"
 description         : >-
                       Football :soccer: fanlytics
 bio                 : "Data Scientist | Football Number Cruncher"
-title_image: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/cover.png"
-avatar: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/cover.png"
+title_image: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/cover_pfp.jpg"
+avatar: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/cover_pfp.jpg"
 
 url: "https://sharmaabhishekk.github.io/"
 baseurl             : ""                     # Change to empty quotes if you are hosting your site at <your-username>.github.io directly
@@ -29,7 +29,7 @@ twitter_username: abhisheksh_98
 ### Author Info ###
 author:
   name              : Abhishek Sharma
-  image             : "/images/cover.png"
+  image             : "/images/cover_pfp.jpg"
 # behance           : your_username
 # dribbble          : your_username
   email             : sharmaabhishek98@utlook.com
