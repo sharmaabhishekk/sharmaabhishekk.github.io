@@ -1,57 +1,38 @@
 <head>
 
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-        inlineMath: [['$','$']]
-      }
-    });
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script> 
+  {% assign title = page.title | default: site.title | escape %}
+  {% assign description = page.description | default: site.description | strip_html | strip_newlines | truncate: 160 %}
+
+  {% if page.name and page.collection == 'projects' %}
+    {% assign title = page.name | escape %}
+  {% endif %}
 
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{{ site.description }}">
 
-  <title>{{ site.title }}</title>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ description }}">
+
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}">
+
   <link rel="shortcut icon" type="image/x-icon" href="{{ '/assets/favicon.ico' | relative_url }}">
 
+  <!-- Theme style -->
+  <script src="{{ '/assets/js/theme.js' | relative_url }}"></script>
+
   <!-- Font Awesome CDN -->
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.0/css/all.css">
 
   <!-- Bootstrap CSS CDN -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
 
   <!-- Animate CSS CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.css" type="text/css"/>
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.css">
+
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}" type="text/css">
-
-<!-- Twitter cards -->
-<meta name="twitter:card" content="summary">
-<meta name="twitter:site" content="@{{ site.twitter_username }}">
-<meta name="twitter:creator" content="@{{ page.author }}">
-<meta name="twitter:image" content="{{ site.title_image }}">
-<meta name="og:image" content="{{ site.title_image }}">
-<meta name="twitter:title" content="{{ site.title }}" />
-<meta name="twitter:description" content="{{ page.description }}">
-
-{% if page.image %}
-<meta name="twitter:card"  content="summary_large_image">
-<meta name="twitter:image" content="{{ page.image }}">
-<meta name="twitter:title" content="{{ page.name }}" />
-<meta name="twitter:description" content="{{ page.description }}">
-
-{% else %}
-<meta name="twitter:card"  content="summary">
-<meta name="twitter:image" content="{{ site.title_image }}">
-<meta name="twitter:title" content="{{ site.title }}" />
-<meta name="twitter:description" content="{{ site.bio }}">
-
-{% endif %}
-<!-- end of Twitter cards -->
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 
 </head>

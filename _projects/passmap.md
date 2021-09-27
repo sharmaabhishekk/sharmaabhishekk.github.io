@@ -145,7 +145,7 @@ def load_file(match_id, getter="remote", path = None):
         df = json_normalize(match_dict, sep="_")
         df = df.query("location == location")
         df[['x','y']] = pd.DataFrame(df.location.values.tolist(), index= df.index)
-        df['y'] = 80 - df['y'] ##Reversing the y-axis co-ordinates because Statsbomb use this weird co-ordinate system
+        df['y'] = 80 - df['y'] ##Reversing the y-axis co-ordinates because Statsbomb use this reversed co-ordinate system
         df['location'] = df[['x', 'y']].apply(list, axis=1)
 
         return match_dict, df

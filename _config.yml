@@ -1,8 +1,8 @@
 ### Site Settings ###
 title               : "Abhishek Sharma"
 description         : >-
-                      Football :soccer: fanlytics
-bio                 : "Data Scientist | Football Number Cruncher"
+                      Data Scientist | Football Fan
+bio                 : "Data Scientist | Football Fan"
 title_image: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/cover_pfp.jpg"
 avatar: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/cover_pfp.jpg"
 
@@ -32,7 +32,7 @@ author:
   image             : "/images/cover_pfp.jpg"
 # behance           : your_username
 # dribbble          : your_username
-  email             : sharmaabhishek98@utlook.com
+  email             : sharmaabhishek98@outlook.com
 # facebook          : your_username
   github            : sharmaabhishekk
   gitlab            : AbhishekSharma98
