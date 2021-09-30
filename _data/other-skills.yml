@@ -6,7 +6,7 @@
   percentage: 50
   color: secondary
 
-- name: Wordpress
+- name: Git
   percentage: 50
   color: secondary
 

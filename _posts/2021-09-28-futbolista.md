@@ -2,7 +2,7 @@
 title: Futbolista.jl
 tags: [Software Development, Julia, Open source]
 style: fill
-color: cyan
+color: success
 description: A Julia package to help with some basic football analytics workflows
 ---
 

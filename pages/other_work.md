@@ -5,19 +5,51 @@ permalink: /other-work/
 weight: 3
 ---
 
-<h2> <b>A list of some of my work from elsewhere on the internet</b></h2>
-<br>
+<h2> <b>A list of some of my work from elsewhere on the internet - podcasts, articles, vizzes and more!</b></h2>
 
-### Writings 
+## Writings 
 
+### Profiles for [Total Football Analysis](https://totalfootballanalysis.com/)
 
-* [Older Tactical Writings at TFA](https://totalfootballanalysis.com/author/abhishek-sharma): These are the stuff I wrote when I was cutting my teeth at [Total Football Analysis](https://totalfootballanalysis.com/). They're less data intensive and more focused on the tactical aspects of the game. My two favourites from back then are 
+* [Premier League 2019/20: Arsenal vs Tottenham Hotspur – tactical preview](https://totalfootballanalysis.com/match-analysis/tactical-preview/premier-league-201920-arsenal-vs-tottenham-hotspur-tactical-preview-tactics)
 
-  * [Arsenal 2019/20 Season Preview](https://totalfootballanalysis.com/match-analysis/tactical-preview/arsenal-201920-season-preview-scout-report-tactical-analysis-tactics) 
+* [Premier League 2019/20: Arsenal vs Burnley – tactical analysis](https://totalfootballanalysis.com/match-analysis/premier-league-201920-arsenal-vs-burnley-tactical-analysis-tactics)
+ 
+* [UEFA Super Cup 2018/19: Liverpool vs Chelsea – tactical analysis](https://totalfootballanalysis.com/match-analysis/uefa-super-cup-201819-liverpool-vs-chelsea-tactical-analysis-tactics)
+ 
+* [Nicolas Pepe at Arsenal 2019/20 – tactical analysis](https://totalfootballanalysis.com/player-analysis/nicolas-pepe-arsenal-201920-tactical-analysis-tactics)
 
-  * [Arsenal vs Burnley, 2019/20](https://totalfootballanalysis.com/match-analysis/premier-league-201920-arsenal-vs-burnley-tactical-analysis-tactics)
+* [Dani Ceballos 2019/20 – scout report](https://totalfootballanalysis.com/player-analysis/dani-ceballos-201920-scout-report-tactical-analysis-tactics)
+ 
+* [Arsenal 2019/20: Season preview – scout report](https://totalfootballanalysis.com/match-analysis/tactical-preview/arsenal-201920-season-preview-scout-report-tactical-analysis-tactics)
+ 
+* [MLS 2019: Atlanta United vs New York Red Bulls – tactical analysis](https://totalfootballanalysis.com/match-analysis/mls-2019-atlanta-united-vs-new-york-red-bulls-tactical-analysis-tactics)
+ 
+* [FIFA Women’s World Cup 2019: Ball Progressors – tactical analysis](https://totalfootballanalysis.com/data-analysis/fifa-womens-world-cup-2019-ball-progression-tactical-analysis-tactics)
+ 
+* [FIFA Women’s World Cup 2019 Tactical Analysis: Germany vs Nigeria](https://totalfootballanalysis.com/match-analysis/fifa-womens-world-cup-tactical-analysis-germany-nigeria)
 
-  Apart from the site, I also wrote several player and team profiles for their monthly magazine. 
+* [Creating Passing Sonars in Python](https://totalfootballanalysis.com/data-analysis/data-analysis-france-south-korea-tactical-analysis-statistics)
+
+* [FIFA Women’s World Cup 2019 Tactical Preview: Nigeria vs South Korea](https://totalfootballanalysis.com/match-analysis/tactical-preview/tactical-analysis-fifa-womens-world-cup-nigeria-south-korea-tactical-preview)
+
+* [Europa League Final 2018/19 Tactical Analysis: Arsenal vs Chelsea](https://totalfootballanalysis.com/match-analysis/tactical-analysis-arsenal-chelsea-europa-league-final)
+
+* [FA Cup 2018/19 Tactical Preview: Manchester City vs Watford](https://totalfootballanalysis.com/match-analysis/tactical-preview/tactical-preview-manchester-city-watford-fa-cup-analysis)
+
+* [Europa League 2018/19 Tactical Analysis: Valencia vs Arsenal](https://totalfootballanalysis.com/match-analysis/valencia-arsenal-europa-league-tactical-analysis)
+
+* [Europa League 2018/19 Tactical Analysis: Arsenal vs Valencia](https://totalfootballanalysis.com/match-analysis/tactical-analysis-europa-league-arsenal-valencia-statistics)
+
+* [How the Hornets gifted three points on a silver platter to Arsenal](https://totalfootballanalysis.com/match-analysis/tactical-analysis-watford-arsenal-premier-league)
+
+* [Can Caparrós’ new style win El Gran Derbi for Sevilla?](https://totalfootballanalysis.com/match-analysis/tactical-preview/sevilla-real-betis-tactical-analysis-preview)
+
+* [Vivianne Miedema: Arsenal Women’s complete striker](https://totalfootballanalysis.com/player-analysis/arsenal-women-vivianne-miedema-fawsl-player-analysis)
+
+**Apart from the site, I also wrote several player and team profiles for their monthly magazine.** 
+
+-------
 
 * ["Creating Emoji Mosaic Art"](https://matplotlib.org/matplotblog/posts/emoji-mosaic-art/): A piece I wrote for matplotlib's official blog on creating emoji collages in matplotlib. 
 
@@ -57,3 +89,9 @@ Most of my vizzes are made using matplotlib. They're static, and almost always a
 
 {% endcapture %}
 {% include elements/carousel.html %}
+
+### Podcasts
+
+* Appeared once on an episode for Chatalytics (great people, follow them [here](https://twitter.com/ChatalyticsPod)!) discussing Arsenal's transfer window needs for the 21/22 season. 
+
+<iframe src="https://open.spotify.com/embed/episode/1BppLTsbNzlv73OcSPErRf" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>

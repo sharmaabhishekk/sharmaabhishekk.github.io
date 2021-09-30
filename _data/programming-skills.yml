@@ -10,6 +10,10 @@
   percentage: 50
   color: secondary  
 
+- name: Javascript
+  percentage: 50
+  color: secondary  
+
 - name: R
   percentage: 50
   color: info
