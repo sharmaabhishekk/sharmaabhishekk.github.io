@@ -6,10 +6,8 @@ color: danger
 description: A flexible application to help analysts create tactical animations with ease
 ---
 
-Source: [Brandon Morelli](https://codeburst.io/javascript-what-the-heck-is-a-callback-aba4da2deced)
-
-![](https://cdn-images-1.medium.com/max/2000/1*pWGJIKats-zuumA3RQNEWQ.jpeg)
+Site: [TactiMation](https://sharmaabhishekk.github.io/TactiMation/)
 
 ## What is TactiMation?
 
-The main motivation to create TactiMation was to help analysts/coaches create tactical animations with ease. 
+The main motivation to create TactiMation was to help analysts/coaches create tactical animations with ease. You can use it to trace out player and ball movements and then have the animation play out. If you like it, you can export it out as a GIF.
