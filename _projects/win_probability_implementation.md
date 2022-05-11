@@ -2,7 +2,7 @@
 author: abhisheksh_98
 name: Win Probability Model
 tools: [Python, Machine Learning, Wyscout]
-image: "https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/raw/master/images/footage_event_data_sync/pogba_18_wc.png" 
+image: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/win-probability/final-timeline.png" 
 description: Building a Win Probability Model in Python
 date: 2022-05-10
 ---
