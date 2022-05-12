@@ -2,32 +2,35 @@
 author: abhisheksh_98
 name: Win Probability Model
 tools: [Python, Machine Learning, Wyscout]
-image: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/win-probability/final-timeline.png" 
+image: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/win-probability/cover-image.jpg" 
 description: Building a Win Probability Model in Python
-date: 2022-05-10
+date: 2022-05-12
 ---
 
 # Building a Win Probability Model in Python
 
-Let's talk about win probability. Along with metrics and graphics like [**attacking threat**](https://www.premierleague.com/news/2210969), [**momentum tracker**](https://www.premierleague.com/news/2129917), it is a part of a whole new slew of analytics-driven content added to the football broadcast experience. In case you aren’t aware what win probability is, it is the set of *percentage numbers shown during matches indicating the expected outcome of the match*. 
+
+Let's talk about win probability. Along with metrics/graphics like [**attacking threat**](https://www.premierleague.com/news/2210969), [**momentum tracker**](https://www.premierleague.com/news/2129917), it is a part of a whole new slew of analytics-driven content added to the Premier League broadcast experience. In case you aren’t aware what win probability is, it is the <span class="highlight-text">*set of percentage numbers showing the likelihood of three possible outcomes (W/L/D)*</span>.
 
 ![Screenshot](../images/win-probability/win-probability-screenshot.webp)
 
-I personally like them a lot. To the average viewer, they are fairly easy to understand, quick to digest, and almost always intuitive.
+I personally like them a lot. To the average viewer, they're understandable, intuitive, and easy to digest.
 
-In this blog post, we will look at how to build one of those models. Our job is made easier by the fact that there’s already some existing public work on the topic - [1](https://theanalyst.com/eu/2021/11/live-win-probability/),[2](https://people.cs.kuleuven.be/~pieter.robberechts/repo/robberechts-mlsa19-iwp.pdf),[3](https://www.americansocceranalysis.com/home/2021/7/16/we-have-a-new-win-probability-model) by **StatsPerform**, **KU Leuven**, and **American Soccer Analysis (ASA)** respectively. For this blog post, we will try to implement the one by ASA as the methodology explained by [Tyler Richardett](https://twitter.com/TylerRichardett) was detailed enough while also being simple enough to implement. If you haven’t already, I’d suggest reading through the blog post at least once before coming back here. 
+In this blog post, we will look at how to build one of those models. Our job is made easier by the fact that there’s already some existing public work on the topic - [1](https://theanalyst.com/eu/2021/11/live-win-probability/),[2](https://people.cs.kuleuven.be/~pieter.robberechts/repo/robberechts-mlsa19-iwp.pdf),[3](https://www.americansocceranalysis.com/home/2021/7/16/we-have-a-new-win-probability-model) by **StatsPerform**, **KU Leuven**, and **American Soccer Analysis (ASA)** respectively. For this blog post, we will try to implement the one by ASA. The methodology (explained by [Tyler Richardett](https://twitter.com/TylerRichardett)) is detailed while also being simple to implement and understand. If you haven’t already, I’d suggest reading through the blog post at least once before coming back here. 
 
 ## Implementation
 
-All of the code is on the github repository [here](https://github.com/sharmaabhishekk/ASA-Win-Probability-Model). The data used was the entire of the 2017/18 Premier League season from the public [figshare wyscout data](https://figshare.com/collections/Soccer_match_event_dataset/4415000/2). We need the event data to calculate some metrics like the `game flow` and the pre-match team strength metrics (both calculated using “expected threat” or xT). 
+* All of the code is on the github repository [here](https://github.com/sharmaabhishekk/ASA-Win-Probability-Model). 
 
-I broke down the code into **three separate notebooks**. They are meant to be run in sequence. The first two notebooks take care of the **preprocessing** and **feature-building** parts while the third one contains the **modelling** and simulation bits. 
+* The data used was the entire of the 2017/18 Premier League season from the public [figshare wyscout data](https://figshare.com/collections/Soccer_match_event_dataset/4415000/2). We need the event data to calculate some metrics like the `game flow` and the pre-match team strength metrics (both calculated using “expected threat” or xT). 
+
+* I broke down the code into **three separate notebooks**. They are meant to be run in sequence. The first two notebooks take care of the **preprocessing** and **feature-building** parts while the third one contains the **modelling** and simulation bits. 
 
 ### Notebook 1
 
 Before diving into the code, a quick little detour to discuss win probability to ensure we are all on the same page. <span class='highlight-text'>Win probability is basically described as the expected probability of either team winning or a draw at any given game state or even before the match begins.</span> 
 
-Our intuition tells us that a few different factors affect this win probability - like **current scoreline**, **team strengths**, the **flow of the game**, **minutes remaining**, etc. 
+Our intuition tells us that a **few different factors affect this win probability - like current scoreline, team strengths, the flow of the game, minutes remaining**, etc. 
 
 Using these factors, we want to estimate the probability of both teams scoring in the remaining minutes. Once we have those, we can use these values to simulate goals, tally them with the current scoreline and get our W/L/D probabilities. This is best explained using an example (picked up directly from the blog):
 
@@ -35,18 +38,18 @@ Using these factors, we want to estimate the probability of both teams scoring i
 
 Here’s the full list of features that we will use to fit our model:
 
-* score_differential
-* goals_scored
-* player_differential
-* own_yellow_cards
-* opposition_yellow_cards 
-* is_home_team
-* avg_team_xt
-* avg_opp_xt
-* minutes_remaining
-* time_interval
-* time_intervals_remaining
-* running_xt_differential
+* `score_differential`
+* `goals_scored`
+* `player_differential`
+* `own_yellow_cards`
+* `opposition_yellow_cards` 
+* `is_home_team`
+* `avg_team_xt`
+* `avg_opp_xt`
+* `minutes_remaining`
+* `time_interval`
+* `time_intervals_remaining`
+* `running_xt_differential`
 
 #### Steps to cover:
 
@@ -55,7 +58,12 @@ Here’s the full list of features that we will use to fit our model:
 3. Use tags to find markers like **goals**, **red cards**, **yellow cards**, to get our game state features. 
 4. Get xT values for our successful passes.
 
-```python
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 import json
 from glob import glob
 import os
@@ -85,17 +93,24 @@ matches_dict = {match['wyId']:match for match in matches}
 ##xt file - download from https://karun.in/blog/data/open_xt_12x8_v1.json
 with open("../expected_threat.json") as f:
     xtd = np.array(json.load(f))
-```
+{% endhighlight %}
 
-To get out expected threat values, we will be using the raw xt values shared by Karun Singh. The data is already in the github repository if you’re cloning the repo. 
+</details>
 
-We essentially need xT for three metrics - `avg_team_xt`, `avg_opp_xt`, and `running_xt_differential`. It is also important to know that the *wyscout data only has passes and not carries so we will only have xT values for passes* (it is possible to impute carries from the data by looking at the difference between successive events but for the first run, I decided to skip that).
+To get our expected threat values, we will be using the raw xt values shared by Karun Singh. The data is already in the github repository if you’re cloning the repo. 
+
+We need xT for three metrics - `avg_team_xt`, `avg_opp_xt`, and `running_xt_differential`. It is also important to know that the *wyscout data only has passes and not carries so we will only have xT values for passes* (it is possible to impute carries from the data by looking at the difference between successive events but for the first run, I decided to skip that).
 
 For the game state metrics - like red cards or goals - we need to use the wyscout tags. The tag ids and their descriptions are in the `tags2name.csv` file from the extracted data. For example, **1702** is a yellow card, **101** is a goal, **102** is an own goal and so on. 
 
 We will loop over all the matches, perform the steps from above, and save them all as `.csv` files in our `processed-data` folder. 
 
-```python
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 def get_goals(vals, side):
     
     tags, event_name, team_id = vals
@@ -177,8 +192,10 @@ for match_id in tqdm(match_ids):
     ##save 
     filename = os.path.join(PROCESSED_DATA_FOLDER, f"{match_id}_{home_team_id}_{away_team_id}.csv")
     match_df.to_csv(filename, index=False)    
-```
+{% endhighlight %}
 
+</details>
+--------
 ### Notebook 2
 
 #### Main steps to cover:
@@ -190,7 +207,12 @@ for match_id in tqdm(match_ids):
 
 In this notebook, we will use the processed csv file for each match and build the remaining features. For our team strength indicators, we will take an average of the xt accumulated by the teams in their last 4 matches. To do this, an efficient (if not the most elegant) way is to first loop over all matches, calculate the xt accumulated by both teams and then save the result in a JSON file. 
 
-```python
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 files = glob(r"../processed-data/*.csv")
 match_ids = [file.split("\\")[-1].split(".csv")[0].split("_")[0] for file in files]
 home_team_ids = [file.split("\\")[-1].split(".csv")[0].split("_")[1] for file in files]
@@ -203,10 +225,17 @@ for team_id in sorted(list(set(home_team_ids))):
 n_prev_matches = 4
 create_xt_matches = True
 n_matches = 38
-```
+{% endhighlight %}
+
+</details>
 This is what was done in the following code cell. 
 
-```python
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 xt_matches_dict = {}
 if create_xt_matches:
     for file, match_id, home_team_id, away_team_id in tqdm(zip(files, match_ids, home_team_ids, away_team_ids)):
@@ -219,11 +248,18 @@ else:
     with open("../pre_xt_matches.json") as f:
         xt_matches_dict = json.load(f)
 
-```
+{% endhighlight %}
 
-After this, we again loop over all the matches, and build the remaining features. Note that the `time intervals` here comes from the blog post itself where Tyler had divided each match into 100 total intervals - this helps to deal with the variable gametime for each match. 
+</details>
 
-```python
+After this, we again loop over all the matches, and build the remaining features. Note that the `time intervals` column here comes from the blog post itself where Tyler has divided each match into 100 total intervals - this helps to deal with the variable gametime for each match. 
+
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 cols = ["matchId", 
         "teamId", 
         "score_differential", 
@@ -352,8 +388,10 @@ for file, match_id, home_team_id, away_team_id in tqdm(zip(files, match_ids, hom
         
         ##save 
         data.append(df.fillna(0))        
-```
-Our target variable is the probability of scoring the goals in the remaining time intervals. I had initially only used a <span class="highlight-text">binary outcome variable</span> (whether a goal was scored or not after this stage) but Tyler himself explained a better way to do this - which would be just the number of goals remaining to be scored divided by the number of intervals left.
+{% endhighlight %}
+
+</details>
+Our target variable is the probability of scoring the goals in the remaining time intervals. I had initially only used a <span class="highlight-text">binary outcome variable</span> (whether a goal was scored or not after this stage). However upon asking Tyler, I realized that his way of generating the targets was slightly different but much better - the targets would just be the number of goals remaining to be scored divided by the number of intervals left.
 
 > To illustrate using an example, if we are in the time interval 60/100, and we know FC Tucson are going to score another 2 goals in the remaining time intervals, the probability at that point would be `2/40` or `0.05`. If they score 1 at 65, then at 70/100 it would be `0.034` (`1/30`). 
 
@@ -361,11 +399,18 @@ Our target variable is the probability of scoring the goals in the remaining tim
 
 After finishing all our steps for all our matches, we saved the data as one large `.csv` file and proceed onto the exciting stuff - modelling. 
 
-```python
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 final_df = pd.concat(data, ignore_index=True)
 final_df.to_csv("../final_processed_data.csv", index=False) 
-```
+{% endhighlight %}
 
+</details>
+------------
 ### Notebook 3
 
 #### Main steps to cover:
@@ -374,7 +419,12 @@ final_df.to_csv("../final_processed_data.csv", index=False)
 2. Split the data and fit the model.
 3. Some evaluation graphs and a sanity check plot.
 
-```python
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 import json
 import os
 from glob import glob
@@ -387,11 +437,18 @@ from tqdm import tqdm
 
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split
-```
+{% endhighlight %}
+
+</details>
 
 The blog uses a single observation per minute of the match. Our final data from the previous notebook has multiple records per minute so our first step is to perform a `pandas groupby` and condense the data. After performing that, we have around 60k observations in total. 
 
-```python
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 WYSCOUT_DATA_FOLDER = "../wyscout_figshare_data" ## path where the wyscout data is extracted
 
 df = pd.read_csv("../final_processed_data.csv")
@@ -416,12 +473,19 @@ p = df.groupby(["matchId", "teamId", "minutes_remaining"]).agg(
 
 print(df.shape)
 print(p.shape)
-```
-At this point we are pretty much ready to fit a first model. We batch out our train and test splits and fit a regression model. 
+{% endhighlight %}
+
+</details>
+At this point we are ready to fit a first model. We batch out our train and test splits and fit a regression model. 
 
 > Notice that the `time interval` column is not a part of the feature set - the model predictions seem to be more consistent without it. I suspect that’s because of the target leakage and that ends up hindering the model’s ability to learn useful relations. For this reason, I decided to remove it from the feature set. It wasn’t present in ASA’s model either. At any rate, we will really need it immediately after to simulate the final outcomes. 
 
-```python
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 holdout_match_ids = [2500098]
 
 cols =  [
@@ -461,26 +525,47 @@ model.fit(X_train[features], y_train,
           verbose=20
          )
 predictions = model.predict(X_test[features])
-```
+{% endhighlight %}
 
-```python
+</details>
+
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 (pd.Series(model.feature_importances_, index=features)
  .sort_values()
    .plot(kind='barh', title='Feature Importance'));
-```
+{% endhighlight %}
+
+</details>
 ![Feature-Importance-Plot](../images/win-probability/feature-importance-plot.png)
 
-```python
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 plt.hist(model.predict(X_test[features]), ec='k') 
 plt.title('Predictions Distributions');
-```
+{% endhighlight %}
+
+</details>
 ![Predictions Distributions](../images/win-probability/predictions-distribution.png)
 
 #### Simulation
 
-For a given match, once we have a goal-scoring probability for each time interval, we can ‘flip a weighted coin and tally the results'. Once we get our tallies for all the time intervals, we can draw a stack plot to visually get an idea of the model’s performance. 
+For a given match, once we have a goal-scoring probability for each time interval, we can "*flip a weighted coin and tally the results*". Once we get our tallies for all the time intervals, we can draw a stack plot to visually get an idea of the model’s performance. 
 
-```python
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
 n_sims = 1000 ## number of simulations for each remaining time interval
 fig, axes = plt.subplots(figsize=(15, 6), sharey=True)
 
@@ -575,28 +660,28 @@ for holdout_match_id, ax in zip(holdout_match_ids, [axes]):
     # fig.savefig('test', dpi=200)
 
 fig
-``` 
+{% endhighlight %}
+
+</details> 
 ![West Ham_Everton](../images/win-probability/final-timeline.png)
 
 ## Limitations
 
-Some present limitations with the methodology and some potential model improvement ideas.
+The methodology has some limitations, at the moment. I've listed them below, as well as potential improvement ideas.
 
 ##### Figuring out a better validation and evaluation strategy
 
-One of the things I glossed over was the evaluation metric used in the blog - <span class="highlight-text">Ranked Probability Score (RPS)</span>. It was ideal for evaluating models predicting match results where there’s any notion of win, draw, or loss. While I was successful in implementing the loss function, I couldn’t manage to use it as a custom function while training the model. It is important to note that without this, we have no real way of knowing if the model we just trained is good or bad besides simply plotting the graphs from above and visually checking. LightGBM uses <span class="highlight-text">l2 loss</span> by default for regression but it is not ideal for our case. 
+One of the things I glossed over was the evaluation metric used in the blog - <span class="highlight-text">Ranked Probability Score (RPS)</span>. It is ideal for evaluating models predicting match results where the possible outcomes can only be win, draw, or loss. While I was successful in implementing the loss function, I couldn’t manage to use it as a custom function while training the model. It is important to note that without this, we have no real way of knowing if the model we just trained is good or bad besides simply plotting the graphs from above and visually checking. <span class="highlight-text">LightGBM uses l2 loss by default for regression but it is not ideal for our case.</span> 
 
 ##### Training on more data 
 
-Also, we just trained the model on just one season of the Premier League. Probably the best way to improve the performance is to simply train it for the remaining seasons for the other leagues as well in the wyscout dataset. Tyler told me that they used a total of 7500 matches to train their final model - so it is very likely there’s some model performance that we’re leaving on the table by training on only 340 matches!
+Also, we only trained the model on one season of the Premier League. Training the model on more seasons, and more leagues, is likely to be the best way of improving it. The wyscout dataset contains more leagues, and seasons, so this is doable. <span class="highlight-text">Tyler told me that they used a total of 7500 matches to train their final model - so it is very likely there’s some model performance that we’re leaving on the table by training on only 340 matches!</span>
 
 ##### Getting xT for carries or using an action-valuing model like VAEP or g+
 
-One final way of improving the model performance is using **g+** or some other action-valuing model instead of a ball progression model like **xT**. The team strength indicators are very important to the model’s performance as noted by the feature importance plot from above so using a more granular action-valuing model might further tune the model predictions. 
+One final way of improving the model performance is using <span class="highlight-text">**g+** or some other action-valuing model instead of a ball progression model like **xT**</span>. The team strength indicators are very important to the model’s performance as noted by the feature importance plot from above so using a more granular action-valuing model might further tune the model predictions. 
 
 ----------
-Huge thanks to Tyler Richardett himself for his post which inspired this entirely as well as helping me with all my questions. Big thanks also to [Sushruta Nandy](https://twitter.com/lemonhoneytea_) (again!) and [Will Savage](https://twitter.com/ScoutedSxv) for reading the first draft! 
-
---------
+Huge thanks to Tyler Richardett himself for his post which inspired this entirely as well as helping me with all my questions. Huge thanks also to [Sushruta Nandy](https://twitter.com/lemonhoneytea_) (again!) and [Will Savage](https://twitter.com/ScoutedSxv)(first time!) for reading the first draft and providing some really helpful feedback! 
 
 **[GITHUB PROJECT REPO LINK](https://github.com/sharmaabhishekk/ASA-Win-Probability-Model)**
