@@ -682,6 +682,6 @@ Also, we only trained the model on one season of the Premier League. Training th
 One final way of improving the model performance is using <span class="highlight-text">**g+** or some other action-valuing model instead of a ball progression model like **xT**</span>. The team strength indicators are very important to the model’s performance as noted by the feature importance plot from above so using a more granular action-valuing model might further tune the model predictions. 
 
 ----------
-Huge thanks to Tyler Richardett himself for his post which inspired this entirely as well as helping me with all my questions. Huge thanks also to [Sushruta Nandy](https://twitter.com/lemonhoneytea_) (again!) and [Will Savage](https://twitter.com/ScoutedSxv)(first time!) for reading the first draft and providing some really helpful feedback! 
+Huge thanks to Tyler Richardett himself for his post which inspired this entirely as well as helping me with all my questions. Huge thanks also to [Sushruta Nandy](https://twitter.com/lemonhoneytea_) (again!) and [Will Savage](https://twitter.com/ScoutedSxv) (first time!) for reading the first draft and providing some really helpful feedback! 
 
 **[GITHUB PROJECT REPO LINK](https://github.com/sharmaabhishekk/ASA-Win-Probability-Model)**

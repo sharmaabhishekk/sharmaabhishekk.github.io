@@ -1,10 +1,12 @@
 <head>
 
   {% assign title = page.title | default: site.title | escape %}
+  {% assign image = "https://raw.githubusercontent.com/sharmaabhishekk/mpl-footy/main/assets/pitch.jpg" %}
   {% assign description = page.description | default: site.description | strip_html | strip_newlines | truncate: 160 %}
 
   {% if page.name and page.collection == 'projects' %}
     {% assign title = page.name | escape %}
+    {% assign image = page.image %}
   {% endif %}
 
   <meta charset="utf-8">
@@ -14,7 +16,7 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="{{ title }}">
   <meta property="og:description" content="{{ description }}">
-
+  <meta name="og:image" content="{{ image }}">
   <title>{{ title }}</title>
   <meta name="description" content="{{ description }}">
 
@@ -39,10 +41,10 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@abhisheksh_98">
   <meta name="twitter:creator" content="@">
-  <meta name="twitter:image" content="https://raw.githubusercontent.com/sharmaabhishekk/mpl-footy/main/assets/pitch.jpg">
-  <meta name="og:image" content="https://raw.githubusercontent.com/sharmaabhishekk/mpl-footy/main/assets/pitch.jpg">
-  <meta name="twitter:title" content="Abhishek Sharma" />
-  <meta name="twitter:description" content="Blog for Football Analytics">
+  <meta name="twitter:image" content="{{ image }}">
+
+  <meta name="twitter:title" content="{{ title }}" />
+  <meta name="twitter:description" content="{{ description }}">
 
   <!-- end of Twitter cards -->
 
