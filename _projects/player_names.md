@@ -2,7 +2,7 @@
 author: abhisheksh_98
 name: How Many Gabriels Can You Fit in a Team?
 tools: [Python, Pandas,  FbRef, Scraping]
-image: "../images/player_names/cover.jpg" 
+image: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/player_names/cover.jpg" 
 description: Building a Starting XI of Players With the Same Name
 date: 2022-06-28
 ---
