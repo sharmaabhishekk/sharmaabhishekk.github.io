@@ -488,7 +488,7 @@ ax.scatter(ys,xs, s=1000, color='dodgerblue', ec='k',lw=2, marker = MarkerStyle(
 </details>
 <br>
 
-<img style="width: auto;height: 800px;display: flex;" src="../images/player_names/david.png" alt="David XI">
+<img style="width: auto;height: 800px;display: flex;" src="https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/player_names/David.png" alt="David XI">
 
 > David XI seems pretty solid! 
 
