@@ -20,9 +20,30 @@
 }
 
 .circle-image {
-  width: 100%;
-  height: 100%;
+  width: 20%;
+  height: 20%;
   border-radius: 50%;
   object-fit: cover;
   object-position: center;
+}
+
+.main-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.contact-buttons-div {
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.left-side-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.h1-about-section {
+  margin-top: 0px;
 }
