@@ -12,11 +12,16 @@ weight: 3
 
 #### Blogs/Articles 
 
-* Profiles for Total Football Analysis. Full list of **18 pieces** [here](https://totalfootballanalysis.com/author/abhishek-sharma).
+* Arsenal Season 2021/22 Season Review ([Part 1](https://analyticsfc.co.uk/blog/2022/08/06/arsenal-2021-22-how-they-played-in-possession/) and [Part 2](https://analyticsfc.co.uk/blog/2022/08/08/arsenal-2021-22-out-of-possession-and-some-other-things/))
+    * Piece for: [Analytics FC](https://analyticsfc.co.uk/)
+    * Description: Season Review of Arsenal (2021/22). One of my better pieces.
 
-[**Apart from the site, I also wrote several player and team profiles for their monthly magazine**]
+* Creating Emoji Mosaic Art [[Link]](https://matplotlib.org/matplotblog/posts/emoji-mosaic-art/)
+    * Piece for: Matplotblog (matplotlib's official blog) 
+    * Description: Creating emoji collages in matplotlib. 
 
-* ["Creating Emoji Mosaic Art"](https://matplotlib.org/matplotblog/posts/emoji-mosaic-art/): A piece I wrote for matplotlib's official blog on creating emoji collages in matplotlib. 
+* Profiles for Total Football Analysis. Full list of **18 pieces** [here](https://totalfootballanalysis.com/author/abhishek-sharma)
+    (Apart from the site, I also wrote several player and team profiles for their monthly magazine)
 
 ----
 

@@ -9,48 +9,7 @@
 
 <html lang="en" class="h-100">
 
-<head>
-
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="About">
-  <meta property="og:description" content="Data Scientist | Football Fan">
-  <meta name="og:image" content="https://raw.githubusercontent.com/sharmaabhishekk/mpl-footy/main/assets/pitch.jpg">
-  <title>About</title>
-  <meta name="description" content="Data Scientist | Football Fan">
-
-  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico">
-
-  <!-- Theme style -->
-  <script src="/assets/js/theme.js"></script>
-
-  <!-- Font Awesome CDN -->
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.0/css/all.css">
-
-  <!-- Bootstrap CSS CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
-
-  <!-- Animate CSS CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.css">
-
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="/assets/css/style.css">
-
-    <!-- Twitter cards -->
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:site" content="@abhisheksh_98">
-  <meta name="twitter:creator" content="@">
-  <meta name="twitter:image" content="https://raw.githubusercontent.com/sharmaabhishekk/mpl-footy/main/assets/pitch.jpg">
-
-  <meta name="twitter:title" content="About" />
-  <meta name="twitter:description" content="Data Scientist | Football Fan">
-
-  <!-- end of Twitter cards -->
-
-</head>
+{% include head.html %}
 
 <body class="h-100 d-flex flex-column">
 
@@ -64,14 +23,14 @@
 <h1 class="h1-about-section">About Me</h1>
 <div class="contact-buttons-div">
 <a class="resume-button" href="../resume.pdf" target="_blank">RESUME</a>
-<a class="resume-button" href="mailto: abhisheksharma98.work@gmail.com" target="_blank">EMAIL</a>
+<a class="resume-button" href="mailto: {{ site.author.email }}" target="_blank">EMAIL</a>
 </div>
 
 </div>
 
 <div class="right-side-item">
 
-<img src="/images/cover_pfp.jpg" alt="Abhishek Sharma" class="circle-image wow animated zoomIn" data-wow-delay=".1s" />
+<img src="{{ site.author.image }}" alt="{{ site.title }}" class="circle-image wow animated zoomIn" data-wow-delay=".1s" />
 
 </div>
 
