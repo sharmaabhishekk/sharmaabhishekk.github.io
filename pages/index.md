@@ -3,10 +3,6 @@ layout: default
 permalink: /
 ---
 
-
-
----
-
 <div class="main-container">
 
 <div class="left-side-item">
@@ -26,13 +22,17 @@ permalink: /
 
 </div>
 
----
-### Welcome to my blog, I am Abhishek! 
+### Hey :wave: I am Abhishek. Welcome to my blog! 
 
+----
 
-- Data scientist, based in Kolkata :india:
-- Two years of experience in data science across multiple domains :chart:
-- Enjoy working in roles which allow me to solve company problems by exploring data, building models, and creating insights :bar_chart:
+<span class='highlight-text-summary' style="font-size: 2em;">About Me</span>
+
+:india: Data scientist, based in India
+
+:chart: Two years of experience in data science across multiple domains
+
+:bar_chart: Enjoy working in roles which allow me to solve company problems by exploring data, building models, and creating insights
 
 <details>
 
@@ -43,7 +43,7 @@ permalink: /
   <li>
     <p>
     Internship at <span class="highlight-text">Stats Perform</span> (September 2022 - March 2023)<br>
-    Built and developed the <span class="highlight-text">AI Monitoring project</span>, a framework to periodically track model predictions, calculate evaluation and performance metrics for them, and detect anomalous behaviours.
+    Developed the <span class="highlight-text">AI Monitoring project</span> from scratch, a framework to periodically track model predictions, calculate performance metrics for them, and detect anomalous behaviours.
     </p>
   </li>
   <li>
@@ -53,7 +53,7 @@ permalink: /
     </p>
   </li>
   <li>
-    <p>I have also done several consulting projects on a short-term basis.</p>
+    <p>Have also done several short-term consulting projects on topics like building visualizations, building local setups to ingest data from APIs.</p>
   </li>
 </ul>
 

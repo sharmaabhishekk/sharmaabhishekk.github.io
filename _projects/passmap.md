@@ -7,350 +7,581 @@ description: Passmaps using Matplotib and Pandas
 date: 2020-03-14
 ---
 
+# Creating Passmaps in Python
 
-# Creating a Passmap in Python
+**Edit (17/03/2022)**: *This post from 2020 is the oldest post from this site and somehow also the most popular. Unfortunately, a lot of the code doesn't work anymore (mostly due to small changes in the way data is provided by Statsbomb now). I've also realized better ways to do things since then - some of the old code was terrible - so I decided to update this post.*
 
-Passmaps are one of the most popular visualizations in football right now. And for good reason. They pack a lot of useful information
-about a single match in an intuitive manner. Passing trends, networks, players' roles in a given system, and even how well they're
-performing said roles.
+Passmaps or passing networks are one of the most popular visualizations in football. And probably for good reason. If I could pick a single graphic to tell the match story, I'd probably pick a (well-made) passmap. 
 
-In this post, we'll go through the steps to creating your own in Python using Statsbomb's open data.
+They pack a lot of useful information
+about a single match in an intuitive manner. Passing trends, networks, players' roles in a given system, and even how well they're performing said roles.
 
-(If you're just interested in the code, the github link's [here](https://github.com/sharmaabhishekk/passmaps))
+Let's go over creating your own in Python (using Statsbomb's open data).
+
+(If you're just interested in the code, the github link to the notebook is [here](https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/tree/master/notebooks/sb-passmaps.ipynb))
 
 ## Pre-requisites
 
-I'm gonna be using Python so you'll need that installed on your system to follow along. If you don't already, you can go over to
-[python.org](python.org) and get it for your system.
+I'm gonna be using Python so you'll need that.
 
-Other than that, we'll also we using the following Python libraries:
+Other than that, we'll also be using the following libraries:
 
-* Matplotlib - for the plotting
-* Pandas - wrangling the data
-* Requests - making a request to get the data
-* Numpy - some more computing on the data
+```
+pandas     : 1.4.2
+statsbombpy: 1.4.3
+matplotlib : 3.5.2
+numpy      : 1.22.4
+mplsoccer  : 1.0.6
+```
 
-
- All of those should be just a `pip install` away!
+ All of those should be just a `pip install` away.
 
 ## Dataset
 
-To create a passmap for a match, we'll need some event data. Statsbomb have you covered with their excellent free [data](https://github.com/statsbomb/open-data). If you don't
-have a local copy of the data, don't worry - that's what the requests library was for.
+To create a passmap for a match, we'll need some event data. Statsbomb have some free [data](https://github.com/statsbomb/open-data). The library `statsbombpy` is useful to access that data.
 
 ## Basic Overview
 
-
 What really is a passmap?
 
-![Sample](../images/11tegen11.png)
+<img src="../images/11tegen11.png" style="width: 40vw; min-width: 200px;"/>
 
+This is the popular version by [11tegen11](https://twitter.com/11tegen11). At first glance, it might seem like there's a lot going on here but
+let's take a closer look at what information it's supposed to convey to us, specifically, two main things:
 
-This is the popular version by @[11tegen11](https://twitter.com/11tegen11). At first glance, it might seem like there's a lot going on here (and that kinda threw me off a bit the first time I saw these in the wild) but
-let's take a closer look at what information it's supposed to convey to us.
+1. the ***average position of the player***, and
+2. the ***number of passes*** between any two given players.
 
-The two most important things of note are - the ***average position of the player***,
-and the ***number of passes*** between any two given players.
+(Note: average position doesn't necessarily have to be the mean, in some instances it makes sense to use other aggregations as well - like median)
 
-Apart from that, we also have the **players' names**, and the players' dot sizes (which indicate the **total number of
-passes played by the player**).
-Finally we have some aesthetic details - the watermark, team's logo, match details.
-For the purpose of this post, we are going to ignore the watermark and the logo of the team.
+Apart from that, we also have 
+* players' names, and
+* players' dot sizes (which indicate the **total number of passes played by the player**).
+
+Finally we have some aesthetic details - match details, watermark, team's logo. For the purpose of this post, we are going to ignore the last two.
+
+(Again, to just check the notebook, find the link [here](https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/tree/master/notebooks/sb-passmaps.ipynb))
 
 ## Getting Started
 
-
 ### Imports
 
- ```python
+ <br>
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
 
-import json
+{% highlight python %}
+
+import numpy as np 
 import pandas as pd
+
+# matplotlib libraries
+
 import matplotlib.pyplot as plt
-import requests
-from pandas import json_normalize
-import numpy as np
-from pitch import Pitch ##a helper function to quickly give us a pitch
-import warnings
+# changed this to just use mplsoccer's pitch module
+# from pitch import Pitch ##a helper function to quickly give us a pitch
+import matplotlib.patheffects as pe 
+from matplotlib.legend_handler import HandlerLine2D
+from matplotlib.patches import FancyArrowPatch
 
-from pandas.core.common import SettingWithCopyWarning
-warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
+from mplsoccer.pitch import VerticalPitch
+from adjustText import adjust_text
 
- ```
+from statsbombpy import sb
 
-Statsbomb has a unique `match_id` for every match in the open-data repository. The match we're going to look at is the FIFA WC 2018 Final
-between France and Croatia. The id for it is **"8658"** and let's look at **Croatia** to start with (which was the away side in the match).
-Let's set some variables to that data and also grab our figure and axis instances from matplotlib.
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.sans-serif'] = 'Palatino Linotype'
+ {% endhighlight %}
+</details>
 
-```python
+<br>
 
-match_id = "8658"
-side = "away"
-color = "blue"
-min_pass_count = 2 ##minimum number of passes for a link to be plotted
+Statsbomb has a unique `match_id` for every match in the open-data repository. The match we're going to look at is the FIFA WC 2022 Final
+between Argentina and France.
 
-fig, ax = plt.subplots()
-ax = Pitch(ax)
+<br>
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
 
-```
+{% highlight python %}
 
-The next step would be to write a Class called `Player`. Why do that? Well, if you think about it, a player is basically an object
-with certain **attributes** - name, a unique player_id, and on whom we can run some **methods** -
-like calculate the total number of passes attempted completed, or their average position on the pitch. That's pretty much the
-textbook definition of an object!
+sb.competitions().head(5)
 
-```python
+"""
+competition_id	season_id	country_name	competition_name	competition_gender	competition_youth	competition_international	season_name	match_updated	match_updated_360	match_available_360	match_available
+0	16	4	Europe	Champions League	male	False	False	2018/2019	2023-03-07T12:20:48.118250	2021-06-13T16:17:31.694	None	2023-03-07T12:20:48.118250
+1	16	1	Europe	Champions League	male	False	False	2017/2018	2021-08-27T11:26:39.802832	2021-06-13T16:17:31.694	None	2021-01-23T21:55:30.425330
+2	16	2	Europe	Champions League	male	False	False	2016/2017	2021-08-27T11:26:39.802832	2021-06-13T16:17:31.694	None	2020-07-29T05:00
+"""
 
-class Player:
-    def __init__(self, player, df):
-        self.id = player["player"]["id"]
-        self.name = player["player"]["name"]
-        self.average_position(df)
+sb.matches(competition_id=43, season_id=106).\
+    sort_values("match_date", ascending=False).\
+    head(1)
 
-    def average_position(self, df):
+"""
+match_id	match_date	kick_off	competition	season	home_team	away_team	home_score	away_score	match_status	...	last_updated_360	match_week	competition_stage	stadium	referee	home_managers	away_managers	data_version	shot_fidelity_version	xy_fidelity_version
+5	3869685	2022-12-18	17:00:00.000	International - FIFA World Cup	2022	Argentina	France	3	3	available	...	2022-12-21T16:02:21.075183	7	Final	Lusail Stadium	Szymon Marciniak	Lionel Sebastián Scaloni	Didier Deschamps	1.1.0	2	2
+"""
 
-        player_pass_df = df.query("(type_name == 'Pass') & (pass_type_name not in ['Free Kick', 'Corner', 'Throw-in', 'Kick Off']) & (player_id == @self.id) & (pass_outcome_name not in ['Unknown','Out','Pass Offside','Injury Clearance', 'Incomplete'])")
-        self.x, self.y = np.mean(player_pass_df['location'].tolist(), axis=0)
+{% endhighlight %}
+</details>
 
-        self.n_passes_completed = len(player_pass_df)
-
-```
+<br>
 
 ## Loading the data
 
-We can either load the data from the Github [repository](https://github.com/statsbomb/open-data) online or from your local copy of it. Let's write a function to
-take care of both cases. We're going to tell the function which match (**match_id**), and how to get the data (**remote/local**). It's gonna return
-the data (which is going to be in JSON format) and also the data formatted to a Pandas dataframe.
+Next, we'll pick the `match_id` and get all events for it using the `.events` function. It will return a Pandas `dataframe`.
+
+<br>
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
+
+MATCH_ID = 3869685
+df = sb.events(MATCH_ID)
+df.head()
+
+"""
+50_50	bad_behaviour_card	ball_receipt_outcome	ball_recovery_offensive	ball_recovery_recovery_failure	block_deflection	block_offensive	carry_end_location	clearance_aerial_won	clearance_body_part	...	shot_statsbomb_xg	shot_technique	shot_type	substitution_outcome	substitution_replacement	tactics	team	timestamp	type	under_pressure
+0	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	...	NaN	NaN	NaN	NaN	NaN	{'formation': 433, 'lineup': [{'player': {'id'...	Argentina	00:00:00.000	Starting XI	NaN
+1	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	...	NaN	NaN	NaN	NaN	NaN	{'formation': 4231, 'lineup': [{'player': {'id...	France	00:00:00.000	Starting XI	NaN
+"""
+{% endhighlight %}
+</details>
+
+<br>
+
+The dataframe `df` contains the lineups for both teams as the first two dictionaries in the column `tactics`.
+
+<br>
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
+print(df.loc[0, 'tactics'])
+
+"""{'formation': 433,
+ 'lineup': [{'player': {'id': 6909, 'name': 'Damián Emiliano Martínez'},
+   'position': {'id': 1, 'name': 'Goalkeeper'},
+   'jersey_number': 23},
+  {'player': {'id': 29201, 'name': 'Nahuel Molina Lucero'},
+   'position': {'id': 2, 'name': 'Right Back'},
+   'jersey_number': 26},
+   ... 
+  {'player': {'id': 29560, 'name': 'Julián Álvarez'},
+   'position': {'id': 23, 'name': 'Center Forward'},
+   'jersey_number': 9}]}"""
+{% endhighlight %}
+</details>
+
+<br>
+
+This is important, we'll need the names from here.
+
+## Helper Functions for Plotting
+
+Let's write a couple helper functions and Classes to create the arrows to indicate passes and to create an entry for the same in the legend.
+
+<br>
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
+
+class AnnotationHandler(HandlerLine2D):
+    """
+    Copied this from https://stackoverflow.com/a/49262926 
+
+    Useful to add a annotation entry to legend since it is not
+    automatically added
+    """
+    def __init__(self,ms,*args,**kwargs):
+        self.ms = ms
+        HandlerLine2D.__init__(self,*args,**kwargs)
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize,
+                       trans):
+        xdata, _ = self.get_xdata(legend, xdescent, ydescent,
+                                             width, height, fontsize)
+        ydata = ((height - ydescent) / 2.) * np.ones(np.array(xdata).shape, float)
+        legline = FancyArrowPatch(posA=(xdata[0],ydata[0]),
+                                  posB=(xdata[-1],ydata[-1]),
+                                  mutation_scale=self.ms,
+                                  **orig_handle.arrowprops)
+        legline.set_transform(trans)
+        return legline,
+
+def add_arrow(x1, 
+              y1, 
+              x2, 
+              y2, 
+              ax,
+              **kwargs
+              ):
+    """
+    Helper function to add an arrow b/w two points
+    defined by (x1,y1) and (x2, y2)
+
+    A line is drawn from point A to point B. An arrow is then drawn from point A along halfway to point B. This is an easy way to get an arrow with a head in the middle
+    """
+    ax.plot([x1, x2], 
+            [y1, y2], 
+            **kwargs)
+        
+    annotation = ax.annotate("", 
+                xytext=(x1, y1), 
+                xy=( x1+((x2-x1)/2), 
+                         y1+((y2-y1)/2)
+                        ),
+                arrowprops=dict(arrowstyle="->", **kwargs),
+                zorder=10,
+                size=30,
+                label="Darker color indicates higher number of passes in that direction"
+                )
+    
+    return annotation
+
+{% endhighlight %}
+</details>
+
+<br>
+
+## Passmap Logic
+
+The passmap logic is essentially just two groupbys.
+
+1. Groupby 1 is used to get the average positions for players' - we can aggregate on the player names and calulate a `mean`/`median` value for `x` and `y`
 
 ```python
+player_location_df = team_pass_df.\
+                         groupby(['player']).\
+                         agg(x=('pass_start_x', 'mean'), 
+                             y=('pass_start_y', 'mean'),
+                             total=('pass_start_x', 'size')
+                             ).\
+                         reset_index()
 
-def load_file(match_id, getter="remote", path = None):
-    """ """
-
-    if getter == "local":
-        with open(f"{path}/{match_id}.json", "r", encoding="utf-8") as f:
-            match_dict = json.load(f)
-            df = json_normalize(match_dict, sep="_")
-            df = df.query("location == location")
-            df[['x','y']] = pd.DataFrame(df.location.values.tolist(), index= df.index)
-            df['y'] = 80 - df['y'] ##Reversing the y-axis co-ordinates because Statsbomb use this weird co-ordinate system
-            df['location'] = df[['x', 'y']].apply(list, axis=1)
-
-        return match_dict, df
-
-    elif getter == "remote":
-        resp = requests.get(f"https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/{match_id}.json")
-
-        match_dict = json.loads(resp.text)
-        df = json_normalize(match_dict, sep="_")
-        df = df.query("location == location")
-        df[['x','y']] = pd.DataFrame(df.location.values.tolist(), index= df.index)
-        df['y'] = 80 - df['y'] ##Reversing the y-axis co-ordinates because Statsbomb use this reversed co-ordinate system
-        df['location'] = df[['x', 'y']].apply(list, axis=1)
-
-        return match_dict, df
-
+"""
+                             player          x          y  total
+0               Alexis Mac Allister  68.737500  23.845833     24
+1           Cristian Gabriel Romero  33.905128  53.346154     39
+2          Damián Emiliano Martínez  13.400000  44.663636     11
+3                    Enzo Fernandez  56.135000  36.532500     40
+4                    Julián Álvarez  76.346154  37.538462     13
+5    Lionel Andrés Messi Cuccittini  72.172000  50.708000     25
+6              Nahuel Molina Lucero  53.695000  68.920000     20
+7      Nicolás Alejandro Tagliafico  55.591667   8.387500     24
+8           Nicolás Hernán Otamendi  37.979070  23.820930     43
+9            Rodrigo Javier De Paul  59.708824  58.770588     34
+10  Ángel Fabián Di María Hernández  81.928571  12.909524     21
+"""
 ```
 
-I know for a fact that every match JSON file contains the lineups for both teams as the first two dictionaries in our list.
-Let's go ahead and look at it ourselves.
+2. Groupby 2 is used to calculate the number of successful passes between all pairs of players - the starting 11 probably makes the most sense in most cases (except for red cards and early substitutions)
 
 ```python
-print(match_dict[0])
+players_passes_df = team_pass_df.\
+        groupby(['player', 'pass_recipient']).\
+        agg(passes=('pass_start_x', 'size')).\
+        reset_index()
 
-"""{'id': '47638847-fd43-4656-b49c-cff64e5cfc0a', 'index': 1, 'period': 1, 'timestamp': '00:00:00.000', 'minute': 0,
- 'second': 0, 'type': {'id': 35, 'name': 'Starting XI'}, 'possession': 1,'possession_team': {'id': 771, 'name': 'France'},
- 'play_pattern': {'id': 1, 'name': 'Regular Play'}, 'team': {'id': 771, 'name': 'France'}, 'duration': 0.0,
-  'tactics': {'formation': 442, 'lineup':
-  [{'player': {'id': 3099, 'name': 'Hugo Lloris'}, 'position': {'id': 1, 'name': 'Goalkeeper'}, 'jersey_number': 1},
-  {'player': {'id': 5476, 'name': 'Benjamin Pavard'}, 'position': {'id': 2, 'name': 'Right Back'}, 'jersey_number': 2},
-  {'player': {'id': 5485, 'name': 'Raphaël Varane'}, 'position': {'id': 3, 'name': 'Right Center Back'}, 'jersey_number': 4},
-  {'player': {'id': 5492, 'name': 'Samuel Yves Umtiti'}, 'position': {'id': 5, 'name': 'Left Center Back'}, 'jersey_number': 5},
-   {'player': {'id': 5484, 'name': 'Lucas Hernández Pi'}, 'position': {'id': 6, 'name': 'Left Back'}, 'jersey_number': 21},
-   {'player': {'id': 20004, 'name': 'Paul Pogba'}, 'position': {'id': 9, 'name': 'Right Defensive Midfield'}, 'jersey_number': 6},
-   {'player': {'id': 3961, 'name': 'N"Golo Kanté'}, 'position': {'id': 11, 'name': 'Left Defensive Midfield'}, 'jersey_number': 13},
-   {'player': {'id': 3009, 'name': 'Kylian Mbappé Lottin'}, 'position': {'id': 12, 'name': 'Right Midfield'}, 'jersey_number': 10},
-   {'player': {'id': 4375, 'name': 'Blaise Matuidi'}, 'position': {'id': 16, 'name': 'Left Midfield'}, 'jersey_number': 14},
-   {'player': {'id': 5487, 'name': 'Antoine Griezmann'}, 'position': {'id': 22, 'name': 'Right Center Forward'}, 'jersey_number': 7},
-   {'player': {'id': 3604, 'name': 'Olivier Giroud'}, 'position': {'id': 24, 'name': 'Left Center Forward'}, 'jersey_number': 9}]}}"""
+"""
+                             player                  pass_recipient  passes
+0               Alexis Mac Allister                  Enzo Fernandez       6
+1               Alexis Mac Allister                  Julián Álvarez       1
+..                              ...                             ...     ...
+80  Ángel Fabián Di María Hernández                  Julián Álvarez       2
+"""
 ```
 
-This is important because we need the **names**, and **ids** of the players who started the match. So let's go ahead
-and write a small function to get all that data from the dictionary.
+Once, we have those two we can loop over the result of groupby 2 and use each player's corresponding average position from groupby 1 to plot an arrow (`passes`).
+
+The following function does exactly all that. 
+
+<br>
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
+
+{% highlight python %}
+def draw_passmap(ax, 
+                 team_pass_df,
+                 popular_names_dict, 
+                 starters, 
+                 team_name, 
+                 color, 
+                 cmap_name):
+    
+    """
+    create a passmap for a single team 
+    """
+
+    # get only startering players
+    starter_ids = [starter['player']['id'] for starter in starters]
+    team_pass_df = team_pass_df.query(f"player_id in {starter_ids}")
+
+    player_location_df = team_pass_df.\
+                         groupby(['player']).\
+                         agg(x=('pass_start_x', 'mean'), 
+                             y=('pass_start_y', 'mean'),
+                             total=('pass_start_x', 'size')
+                             ).\
+                         reset_index()
+    
+    players_passes_df = team_pass_df.\
+        groupby(['player', 'pass_recipient']).\
+        agg(passes=('pass_start_x', 'size')).\
+        reset_index()
+    
+    # some pandas merging to get all useful data in a single # df
+    players_passes_df = players_passes_df.merge(player_location_df[['player', 'x', 'y']], 
+                                        left_on='player', right_on='player').\
+                                            rename(columns={'x': 'passer_x', 
+                                                            'y': 'passer_y'}
+                                                   )
+
+    players_passes_df = players_passes_df.merge(player_location_df[['player', 'x', 'y']], 
+                                            left_on='pass_recipient', right_on='player').\
+                                                rename(columns={'x': 'recipient_x', 
+                                                                'y': 'recipient_y', 
+                                                                'player_x': 'player'}
+                                                    ) 
+    players_passes_df.drop('player_y', axis=1, inplace=True)
+    players_passes_df.sort_values("passes", ascending=True, inplace=True)
+
+    ## 
+    cmap = plt.cm.get_cmap(cmap_name)
+    highest_passes = players_passes_df['passes'].max()
+    players_passes_df['passes_scaled'] = players_passes_df['passes']/highest_passes
+
+    annotations = []
+    LABEL = True
+
+    for row in players_passes_df.itertuples():
+        if row.passes > MIN_PASS_COUNT:
+
+            if abs(row.recipient_y - row.passer_y) > abs(row.recipient_x - row.passer_x):
+                if row.player > row.pass_recipient:
+                    x_shift, y_shift = 0, ARROW_SHIFT
+                else: 
+                    x_shift, y_shift = 0, -ARROW_SHIFT
+            else:
+                if row.player > row.pass_recipient:
+                    x_shift, y_shift = ARROW_SHIFT, 0
+                else: 
+                    x_shift, y_shift = -ARROW_SHIFT, 0
+
+            arrow = add_arrow(x1=row.recipient_y+y_shift, 
+                        y1=row.recipient_x+x_shift,
+                        x2=row.passer_y+y_shift, 
+                        y2=row.passer_x+x_shift,
+                        ax=ax, 
+                        color=cmap(row.passes_scaled), 
+                        alpha=row.passes_scaled,
+                        lw=row.passes_scaled*2)
+            
+            annotations.append(arrow)
+
+    texts = []
+
+    player_location_df.sort_values("total", ascending=True, inplace=True)
+
+    for row in player_location_df.itertuples():
+        ax.scatter(row.y, 
+                row.x, 
+                s=(row.total/player_location_df.total.max())*700,
+                fc='white',
+                ec=color,
+                lw=5,
+                zorder=100, 
+                label="Size indicates total passes made by player" if LABEL else "" 
+                )
+        text = ax.text(row.y, 
+                    row.x-4, 
+                    s=popular_names_dict[row.player], 
+                    ha='center', 
+                    va='center', 
+                    zorder=200)
+                
+        text.set_path_effects([pe.PathPatchEffect(offset=(2, -2), hatch='xxxx', facecolor='gray'),
+                            ])
+        texts.append(text)
+
+        LABEL = False
+    # use this if you have names getting plotted over each other
+    # adjust_text(texts)
+
+    # title
+    title = ax.text(0, 
+            130, 
+            team_name, 
+            color = color,
+            fontsize=24, 
+            zorder=250, 
+            va='top',
+            )
+    
+    ax.text(0, 
+            125, 
+            f"Passes from minute 0-{team_pass_df.minute.max()} (1st substitution/red card or full-time)",
+            fontsize=10, 
+            va='top', )
+    
+    ax.text(80, 
+            -2, 
+            f"Minimum Passes: {MIN_PASS_COUNT}",
+            fontsize=10, 
+            va='top',
+            ha='right',
+            )
+    
+    title.set_path_effects([pe.PathPatchEffect(offset=(1, -1), hatch='xxxx', facecolor='black'),
+                            pe.PathPatchEffect(edgecolor='black', linewidth=.8, facecolor=color)
+                            ])
+    
+    # create legend for annotations
+    h, _ = ax.get_legend_handles_labels()
+    annotate = annotations[-1]
+
+    ax.legend(handles = h +[annotate], 
+              handler_map={type(annotate) : AnnotationHandler(5)}, 
+              loc=3)
+{% endhighlight %}
+</details>
+
+<br>
+
+Note: This bit was just to ensure we avoid overlaps between our arrows. 
 
 ```python
+if row.passes > MIN_PASS_COUNT:
 
-def get_starters(match_dict, side="home"):
-    """ """
-    lineups = match_dict[0]["tactics"]["lineup"] if side == "home" else match_dict[1]["tactics"]["lineup"]
-    return lineups
-
+            if abs(row.recipient_y - row.passer_y) > abs(row.recipient_x - row.passer_x):
+                if row.player > row.pass_recipient:
+                    x_shift, y_shift = 0, ARROW_SHIFT
+                else: 
+                    x_shift, y_shift = 0, -ARROW_SHIFT
+            else:
+                if row.player > row.pass_recipient:
+                    x_shift, y_shift = ARROW_SHIFT, 0
+                else: 
+                    x_shift, y_shift = -ARROW_SHIFT, 0
 ```
 
-We're almost set with all the functions and classes we're gonna need to define. Now, we're going to need to call them. But before that,
-we're quickly going to pull the names of both the teams in a dictionary. That's gonna be helpful later when we're adding text to
-the viz.
+![demo](../images/demo_.png)
 
-```python
-side_dict = {"home": match_dict[0]["team"]["name"],
-             "away": match_dict[1]["team"]["name"] }
+Finally, we'll set up some variables and call our `draw_passmap` function.
 
-print(side_dict)
+<br>
+<details>
+<summary class='highlight-text-summary'>
+Code cell
+</summary>
 
-## {'home': 'France', 'away': 'Croatia'}
-```
+{% highlight python %}
+MIN_PASS_COUNT = 2 ##minimum number of passes for a link to be plotted
+ARROW_SHIFT = 2 ## units to shift the arrows for pairs of players to ensure no overlaps
 
-Let's go ahead and call our functions to get the data and the lineups.
+# get only open-play successful passes
+pass_df = df.query("(type == 'Pass') & \
+                    (pass_type not in ['Free Kick', 'Corner', 'Throw-in', 'Kick Off']) & \
+                    (pass_outcome not in ['Unknown','Out','Pass Offside','Injury Clearance', 'Incomplete'])"
+                   ).reset_index(drop=True)
 
-```python
-match_dict, df = load_file(match_id, getter="remote")
-lineups = get_starters(match_dict, side=side)
+pass_df[['pass_start_x','pass_start_y']] = pd.DataFrame(pass_df["location"].values.tolist(), 
+                                                        index = pass_df.index)
+pass_df[['pass_end_x','pass_end_y']] = pd.DataFrame(pass_df["pass_end_location"].values.tolist(), 
+                                                        index = pass_df.index)
 
-```
-Now we are going to create `Player` objects out of all the players in our lineups list and put them all together in a dictionary.
+# makes it easy to get smaller names in the passmaps 
+# instead of the full names
+popular_names_dict = {"Alexis Mac Allister": "Mac Allister",
+                      "Cristian Gabriel Romero": "Romero",
+                        "Damián Emiliano Martínez": "Martínez",
+                        "Enzo Fernandez": "Enzo",
+                        "Julián Álvarez": "Álvarez",
+                        "Lionel Andrés Messi Cuccittini": "Messi",
+                        "Nahuel Molina Lucero": "Molina",
+                        "Nicolás Alejandro Tagliafico": "Tagliafico",
+                        "Nicolás Hernán Otamendi": "Otamendi",
+                        "Rodrigo Javier De Paul": "De Paul",
+                        "Ángel Fabián Di María Hernández": "Di María",
+                        "Adrien Rabiot": "Rabiot",
+                        "Antoine Griezmann": "Griezmann",
+                        "Aurélien Djani Tchouaméni": "Tchouaméni",
+                        "Dayotchanculle Upamecano": "Upamecano",
+                        "Hugo Lloris": "Lloris",
+                        "Jules Koundé": "Koundé",
+                        "Kylian Mbappé Lottin": "Mbappé",
+                        "Olivier Giroud": "Giroud",
+                        "Ousmane Dembélé": "Dembélé",
+                        "Raphaël Varane": "Varane",
+                        "Theo Bernard François Hernández": "Hernández"
+                        }
 
-```python
-player_objs_dict = {}
-starters = []
-for player in lineups:
-    starters.append(player["player"]["name"]) ##To remove all substitutes from our final grouped_df
-    p = Player(player, df) ##Calling the Player class
-    player_objs_dict.update({player["player"]["name"]: p}) ##For lookup during plotting the grouped_df
+## idx, color, cmap 
+idx_sides = ((0, 'dodgerblue', 'Blues'), 
+             (1, 'red', 'Reds')
+             )
 
-```
-## Data-cleaning
+fig, axes = VerticalPitch().draw(nrows=1, 
+                       ncols=2, 
+                       figsize=(16,10)
+                       )
+fig.set_facecolor("white")
 
-Now we clean up the events dataframe a little.
-The first step is to get only the events which are **only open-play passes and only passes by the side we've chosen, and only those that are successful.**
-We chain all these filters together using the query method.
+for idx, color, cmap in idx_sides:
+    starters = df.loc[idx, 'tactics']['lineup']
+    team_name = df.loc[idx, 'team']
+    team_pass_df = pass_df.query(f"team == '{team_name}'")
 
-The next part is to group these passes together based on the player who passed the ball and the one who received the ball.
-For example, if Modric passed to Brozovic four times in the entire match, we are gonna have four separate rows in `total_pass_df`
-for it. But when we apply the groupby method, that's compressed into a single row with the new column count reflecting the value four.
+    if 'Substitution' in df.type.unique() or 'Red Card' in df.type.unique():
+      ending_minute = df.query(f"team == '{team_name}' and type==('Substitution', 'Red Card')").minute.values[0]
+    else: 
+      ending_minute = team_pass_df.minute.max()
 
-The final step is to get only the players who were in the starters list and the minimum passes played between them is greater
-than or equal to a certain value - I'm gonna go with 2. This is initialised right at the beginning :point_up: .
+    team_pass_df = team_pass_df.query(f"minute<={ending_minute}")
+    draw_passmap(axes[idx], 
+                 team_pass_df,
+                 popular_names_dict=popular_names_dict,
+                 starters = starters, 
+                 team_name=team_name,
+                 color=color,
+                 cmap_name=cmap
+                 )
 
-```python
-total_pass_df = df.query(f"(type_name == 'Pass') & (pass_type_name not in ['Free Kick', 'Corner', 'Throw-in', 'Kick Off']) &"\
-                                 f"(team_name == '{side_dict[side]}') & (pass_outcome_name not in ['Unknown','Out','Pass Offside','Injury Clearance', 'Incomplete'])")
-total_pass_df = total_pass_df.groupby(["player_name", "pass_recipient_name"]).size().reset_index(name="count")
-total_pass_df = total_pass_df.query(" (player_name == @starters) & (pass_recipient_name == @starters) & (count>=@min_pass_count) ")
-```
+{% endhighlight %}
+</details>
 
-Here's our final dataframe -
+<br>
 
-```python
+![Final](../images/passmap/final.png)
 
-print(total_pass_df)
-
-#     player_name pass_recipient_name  count
-#      Ante Rebić        Ivan Perišić      2
-#      Ante Rebić       Šime Vrsaljko      2
-# Danijel Subašić        Dejan Lovren      4
-# Danijel Subašić        Domagoj Vida      3
-#    Dejan Lovren     Danijel Subašić      3
-
-```
-
-## Visualization
-
-So far so good. Now's the time to visualise our results. We're going to iterate over our dataframe, grab the players who did the
-passing and receiving, grab the player_object of those two players from our `player_objs` dictionary and then grab their names,
-average positions, and their total passes.
-
-You could go ahead and plot them right now using `ax.plot` and they'd look like this.
-
-![Only_Lines](../images/only_lines.png)
-
-There's room for some improvement though. We are not able to tell, **between Player A and Player B, who passed more to whom**.
-If Modric passes to Brozovic ten times in a match and Brozovic only returns the favour
-once, that information is lost to us because there's just one thick line between both of them.
-For this reason, it might make sense to use arrows to denote direction but also make sure they're not overlapping.
-
-To do that, we use some if-else logic. We pick up a unique identifier for the players - the `player_id` will do just fine.
-Then we can compare the `player_id` - if `player_id` of Player A is greater than Player B, shift the arrow from A to B a little to
-the left. If B is greater than A, shift the arrow a little to the right. Basically, as seen in the figure below -
-
-![Comparison](../images/demo_.png)
-
-
-**Note**: *We can also apply the same logic to players who are on the same line horizontally - the only difference would be that instead of
-shifting the arrow left and right, we'll shift them a little up and a little down.*
-
-
-```python
-arrow_shift = 1 ##Units by which the arrow moves from its original position
-shrink_val = 1.5 ##Units by which the arrow is shortened from the end_points
-
-##Visualising the passmap
-
-for row in total_pass_df.itertuples():
-
-    link = row[3] ## for the arrow-width and the alpha
-    passer = player_objs_dict[row[1]]
-    receiver = player_objs_dict[row[2]]
-
-    alpha = link/15
-    if alpha >1:
-        alpha=1
-
-    if abs( receiver.x - passer.x) > abs(receiver.y - passer.y):
-
-        if receiver.id > passer.id:
-            ax.annotate("", xy=(receiver.x, receiver.y + arrow_shift), xytext=(passer.x, passer.y + arrow_shift),
-                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw = link*0.12, alpha=alpha))
-
-        elif passer.id > receiver.id:
-            ax.annotate("", xy=(receiver.x, receiver.y - arrow_shift), xytext=(passer.x, passer.y - arrow_shift),
-                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.12, alpha=alpha))
-
-    elif abs(receiver.x - passer.x) <= abs(receiver.y - passer.y):
-
-        if receiver.id > passer.id:
-            ax.annotate("", xy=(receiver.x + arrow_shift, receiver.y), xytext=(passer.x + arrow_shift, passer.y),
-                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.12, alpha=alpha))
-
-        elif passer.id > receiver.id:
-            ax.annotate("", xy=(receiver.x - arrow_shift, receiver.y), xytext=(passer.x - arrow_shift, passer.y),
-                            arrowprops=dict(arrowstyle="-|>", color="0.25", shrinkA=shrink_val, shrinkB=shrink_val, lw=link*0.12, alpha=alpha))
+One of the advantages of passmaps is that they're fairly customizable. There's a bunch of different things you can try depending on what you're trying to look at. Some examples, 
 
 
-```
-The final step of our visualisation is to add scatter points to the players' locations and also annotate them with their last names.
-We can then add some extra heading and sub-heading information. Here's our final result after all that's taken care of.
+* Aggregation 
+    * Method can be different: median is useful when you have players changing wings.
+    * Aggregation period can be different: first half, first 60 minutes, etc. 
+    * The players being aggregated could also be different: France had two early subs and hence their passmap is only until the 40th minute. It might make sense to consider a different set of 11 players. How would we go about doing this? Perhaps using Ben Torvaney's window function idea outlined [here](https://www.statsandsnakeoil.com/2020/06/25/how-to-count-minutes-played/)
 
-```python
-for name, player in player_objs_dict.items():
+* Player Nodes - Size could indicate something else other than total passes (xT maybe).
+* Could increase/decrease minimum number of passes considered. Could also add other useful metrics.
 
-    ax.scatter(player.x, player.y, s=player.n_passes_completed*1.3, color=color, zorder = 4)
-    ax.text(player.x, player.y+2 if player.y >40 else player.y -2, s=player.name.split(" ")[-1], rotation=270, va="top" if player.y<40 else "bottom", size=6.5, fontweight="book", zorder=7, color=color)
+This is why instead of a static viz, a more interactive thing makes sense, where you can use a bunch of widgets to mess around with all these small things. 
 
-ax.text(124, 80, f"{side_dict[side]}", size=12, fontweight="demibold", rotation=270, color=color, va="top")
-ax.text(122, 80, f"{side_dict['home']} vs {side_dict['away']}", size=8, fontweight="demibold", rotation = 270, va="top")
+Karun Singh does this and more in his blog post [here](https://karun.in/blog/interactive-passing-networks.html).
 
-fig.tight_layout()
-```
-
-![Final](../images/final.png)
-
-Pretty neat, huh? There's still room for a lot of improvements/experimenting. We could try some network analysis on the dataframe
-and find out the centrality measures - like betweenness centrality to find out the most important player(s).
-Passmaps also have a few limitations: the affinity for average position may lead to pretty wildly inaccurate results when players change positions a lot
-in a given match.
-
-I hope this was a fruitful/fun python exercise. For any sort of feedback, feel free to reach out to me on Twitter!
-
-__________________________
-
-**Note**: *Since I first published this post, I realized I had made a stupid error initially. I hadn't noticed that
-Statsbomb use the reversed co-ordinate system for the y-axis. Hence all players of the right ended up on the left and vice-versa.
-Full credit to [Soumyajit Bose](https://twitter.com/MessiBose) for catching that. I've fixed the code to take care of that.*
-
-
-
-
-
-
-
-
+____

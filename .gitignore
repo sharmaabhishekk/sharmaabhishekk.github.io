@@ -10,3 +10,4 @@ Gemfile.lock
 
 # Log Files
 *.log
+*.cache 
