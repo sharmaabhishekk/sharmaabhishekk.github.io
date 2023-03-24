@@ -53,7 +53,8 @@ permalink: /
     </p>
   </li>
   <li>
-    <p>Have also done several short-term consulting projects on topics like building visualizations, building local setups to ingest data from APIs.</p>
+    <p>Have also done several short-term consulting projects
+    which included work like creating visualizations, and building local data setups to ingest data from APIs.</p>
   </li>
 </ul>
 

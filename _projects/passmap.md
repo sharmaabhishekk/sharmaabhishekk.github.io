@@ -9,7 +9,7 @@ date: 2020-03-14
 
 # Creating Passmaps in Python
 
-**Edit (17/03/2022)**: *This post from 2020 is the oldest post from this site and somehow also the most popular. Unfortunately, a lot of the code doesn't work anymore (mostly due to small changes in the way data is provided by Statsbomb now). I've also realized better ways to do things since then - some of the old code was terrible - so I decided to update this post.*
+**Edit (17/03/2022)**: *This post from 2020 is the oldest post from this site and somehow also the most popular. Unfortunately, a lot of the code was outdated so I decided to update this post.*
 
 Passmaps or passing networks are one of the most popular visualizations in football. And probably for good reason. If I could pick a single graphic to tell the match story, I'd probably pick a (well-made) passmap. 
 
@@ -98,7 +98,9 @@ plt.rcParams['font.sans-serif'] = 'Palatino Linotype'
 
 <br>
 
-Statsbomb has a unique `match_id` for every match in the open-data repository. The match we're going to look at is the FIFA WC 2022 Final
+### Loading the data
+
+Statsbomb have a unique `match_id` for every match in the open-data repository. The match we're going to look at is the FIFA WC 2022 Final
 between Argentina and France.
 
 <br>
@@ -131,8 +133,6 @@ match_id	match_date	kick_off	competition	season	home_team	away_team	home_score	a
 </details>
 
 <br>
-
-## Loading the data
 
 Next, we'll pick the `match_id` and get all events for it using the `.events` function. It will return a Pandas `dataframe`.
 
@@ -187,7 +187,7 @@ print(df.loc[0, 'tactics'])
 
 This is important, we'll need the names from here.
 
-## Helper Functions for Plotting
+### Helper Functions for Plotting
 
 Let's write a couple helper functions and Classes to create the arrows to indicate passes and to create an entry for the same in the legend.
 
@@ -257,7 +257,7 @@ def add_arrow(x1,
 
 <br>
 
-## Passmap Logic
+### Passmap Logic
 
 The passmap logic is essentially just two groupbys.
 
@@ -481,6 +481,8 @@ if row.passes > MIN_PASS_COUNT:
 ```
 
 ![demo](../images/demo_.png)
+
+----
 
 Finally, we'll set up some variables and call our `draw_passmap` function.
 
