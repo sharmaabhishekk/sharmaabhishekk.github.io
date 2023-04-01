@@ -1,0 +1,53 @@
+{
+  "type": "network",
+  "version": "1.0",
+  "data": "data.json",
+  "logo": {
+    "file": "https://github.com/sharmaabhishekk/sharmaabhishekk.github.io/blob/master/twitter-network/pitch-graph-icon.png",
+    "link": "",
+    "text": "Abhishek Sharma"
+  },
+  "text": {
+    "more": "Social network graph of twitter users from the \"football analytics\" community. \n\nUsers in here are pulled from a few twitter lists (ex: John Muller\u0027s soccer people list). Some names may have been missed.\nNode size corresponds to PageRank. \nInteractions are public conversations between accounts. \nEdges are undirected (can either mention or be mentioned) and weighed (more interactions means thicker edges).\nCommunities are automatically generated in Gephi. ",
+    "intro": "Twitter Network Graph of \"Football Analytics\" Accounts",
+    "title": ""
+  },
+  "legend": {
+    "edgeLabel": "Mentions/Interactions",
+    "colorLabel": "Community (automatically generated)",
+    "nodeLabel": "Twitter User"
+  },
+  "features": {
+    "search": true,
+    "groupSelectorAttribute": "Modularity Class",
+    "hoverBehavior": "dim"
+  },
+  "informationPanel": {
+    "groupByEdgeDirection": false,
+    "imageAttribute": "Label"
+  },
+  "sigma": {
+    "drawingProperties": {
+      "defaultEdgeType": "curve",
+      "defaultHoverLabelBGColor": "#002147",
+      "defaultLabelBGColor": "#ddd",
+      "activeFontStyle": "bold",
+      "defaultLabelColor": "#000",
+      "labelThreshold": 10,
+      "defaultLabelHoverColor": "#fff",
+      "fontStyle": "bold",
+      "hoverFontStyle": "bold",
+      "defaultLabelSize": 14
+    },
+    "graphProperties": {
+      "maxEdgeSize": 0.5,
+      "minEdgeSize": 0.2,
+      "minNodeSize": 1,
+      "maxNodeSize": 7
+    },
+    "mouseProperties": {
+      "maxRatio": 20,
+      "minRatio": 0.75
+    }
+  }
+}
