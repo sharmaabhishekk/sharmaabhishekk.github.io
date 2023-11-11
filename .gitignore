@@ -11,3 +11,5 @@ Gemfile.lock
 # Log Files
 *.log
 *.cache 
+
+development-guide.txt

@@ -1,7 +1,7 @@
 ### Site Settings ###
 title               : "Abhishek Sharma"
-description         : >-
-                      Data Scientist | Football Fan
+description         : "I speak python fluently, build castles on AWS cloud, 
+                      and believe pandas belong in notebooks not zoos"
 bio                 : "Data Scientist | Football Fan"
 title_image: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/cover_pfp.jpg"
 avatar: "https://raw.githubusercontent.com/sharmaabhishekk/sharmaabhishekk.github.io/master/images/cover_pfp.jpg"
@@ -35,7 +35,6 @@ author:
   email             : abhisheksharma98.work@gmail.com
 # facebook          : your_username
   github            : sharmaabhishekk
-  gitlab            : AbhishekSharma98
 # instagram         : your_username
 # linkedin          : your_username
 # medium            : your_username
